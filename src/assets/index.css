@@ -1,5 +1,27 @@
 @import 'tailwindcss';
 
+@theme {
+  /* 배경색 (bg-*) */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+
+  /* 텍스트 색상 (text-*) */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  /* 포인트 색상 (text-*, bg-*, border-* 등 모두 사용 가능) */
+  --color-accent-primary: var(--accent-primary);
+  --color-accent-hover: var(--accent-hover);
+
+  /* 테두리 색상 (border-*) */
+  --color-border: var(--border-color); /* border-border로 사용됨 */
+
+  /* 네비게이션 및 버튼 */
+  --color-nav-bg: var(--nav-bg);
+  --color-button-hover: var(--button-hover-bg);
+}
+
 .noto-sans-kr {
   font-family: 'Noto Sans KR', sans-serif;
   font-optical-sizing: auto;
