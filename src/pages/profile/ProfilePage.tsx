@@ -7,7 +7,7 @@ function TodoPage() {
             <Navigation />
 
             {/* 메인 화면 */}
-            <main className="px-8 pt-16 pb-20 md:px-45 md:pt-20 md:pb-0">
+            <main className="px-8 pt-16 pb-20 md:px-25 md:pt-20 md:pb-0">
                 <div className="mx-auto py-8">
                     <h1 className="mb-4 text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
                         Profile Page
