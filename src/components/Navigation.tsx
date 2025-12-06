@@ -218,7 +218,7 @@ function Navigation() {
 
           {/* 사용자 아이콘 영역 */}
           <div className="flex items-center gap-4">
-            <Link to="/profile" className={isEditMode ? 'pointer-events-none' : ''}>
+            <Link to={localStorage.getItem('isLoggedIn') === 'true' ? '/profile' : '/login'} className={isEditMode ? 'pointer-events-none' : ''}>
               <button
                 className="rounded-full p-2 transition-colors"
                 style={{ color: 'var(--text-muted)' }}
@@ -271,7 +271,7 @@ function Navigation() {
 
           {/* 사용자 아이콘 영역 */}
           <div className="flex items-center gap-3">
-            <Link to="/profile" className={isEditMode ? 'pointer-events-none' : ''}>
+            <Link to={localStorage.getItem('isLoggedIn') === 'true' ? '/profile' : '/login'} className={isEditMode ? 'pointer-events-none' : ''}>
               <button
                 className="rounded-full p-2 transition-colors"
                 style={{ color: 'var(--text-muted)' }}
