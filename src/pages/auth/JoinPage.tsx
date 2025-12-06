@@ -40,7 +40,7 @@ function JoinPage() {
       <div className="w-full max-w-md">
         {/* 로고 */}
         <Link to="/" className="mb-8 block text-center">
-          <img src="/logo.png" alt="벼리" className="mx-auto mb-4 w-32" />
+          <img src="/logo.png" alt="벼리" className="mx-auto w-32" />
           <h1 className="text-text-primary mb-2 text-3xl font-bold">회원가입</h1>
           <p className="text-text-secondary text-sm">벼리와 함께 일상을 기록하세요</p>
         </Link>

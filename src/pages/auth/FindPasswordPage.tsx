@@ -19,7 +19,7 @@ function FindPasswordPage() {
       <div className="w-full max-w-md">
         {/* 로고 */}
         <Link to="/" className="mb-8 block text-center">
-          <img src="/logo.png" alt="벼리" className="mx-auto mb-4 w-32" />
+          <img src="/logo.png" alt="벼리" className="mx-auto w-32" />
           <h1 className="text-text-primary mb-2 text-3xl font-bold">비밀번호 찾기</h1>
           <p className="text-text-secondary text-sm">{isSubmitted ? '이메일을 확인해주세요' : '가입하신 이메일 주소를 입력하세요'}</p>
         </Link>
@@ -31,12 +31,12 @@ function FindPasswordPage() {
               {/* 안내 메시지 */}
               <div className="bg-accent-primary/10 border-accent-primary/30 rounded-lg border p-4">
                 <div className="flex gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-primary mt-0.5 flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-primary mb-0.5 flex-shrink-0">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4" />
                     <path d="M12 8h.01" />
                   </svg>
-                  <p className="text-text-secondary text-sm">입력하신 이메일로 비밀번호 재설정 링크를 보내드립니다.</p>
+                  <p className="text-text-secondary flex items-center text-sm">입력하신 이메일로 비밀번호 재설정 링크를 보내드립니다.</p>
                 </div>
               </div>
 
