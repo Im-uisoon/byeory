@@ -16,7 +16,7 @@ function LoginPage() {
     // 간단한 로그인 처리 (실제로는 API 호출)
     if (email && password) {
       login(email);
-      navigate('/profile');
+      navigate('/');
     }
   };
 
