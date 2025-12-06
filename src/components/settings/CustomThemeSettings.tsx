@@ -11,8 +11,8 @@ interface Props {
 const COLORS: ColorName[] = ['rose', 'orange', 'yellow', 'lime', 'emerald', 'indigo', 'purple', 'pink', 'slate'];
 
 const FONT_OPTIONS = [
-  { label: 'Noto Sans KR (기본)', value: "'Noto Sans KR', sans-serif" },
-  { label: 'Jua (주아)', value: "'Jua', sans-serif" },
+  { label: 'Jua (기본)', value: "'Jua', sans-serif" },
+  { label: 'Noto Sans KR', value: "'Noto Sans KR', sans-serif" },
   { label: 'Serif (명조)', value: 'serif' },
   { label: 'Monospace (고정폭)', value: 'monospace' },
 ];
@@ -55,7 +55,7 @@ export default function CustomThemeSettings({ onBack, onClose }: Props) {
   const [textColorName, setTextColorName] = useState<ColorName>(() => getSavedSetting('textColorName', 'slate'));
   const [textSaturation, setTextSaturation] = useState<number>(() => getSavedSetting('textSaturation', 100));
   const [fontSize, setFontSize] = useState<number>(() => getSavedSetting('fontSize', 16));
-  const [fontFamily, setFontFamily] = useState<string>(() => getSavedSetting('fontFamily', "'Noto Sans KR', sans-serif"));
+  const [fontFamily, setFontFamily] = useState<string>(() => getSavedSetting('fontFamily', "'Jua', sans-serif"));
 
   // 배경/테마 설정
   const [customBaseColor, setCustomBaseColor] = useState<string>(() => getSavedSetting('customBaseColor', '#3b82f6'));
@@ -102,7 +102,7 @@ export default function CustomThemeSettings({ onBack, onClose }: Props) {
     root.style.setProperty('--button-hover-bg', getColorValue(colorName, 100));
 
     // 폰트 초기화
-    document.body.style.fontFamily = "'Noto Sans KR', sans-serif";
+    document.body.style.fontFamily = "'Jua', sans-serif";
     document.body.style.fontSize = '16px';
 
     setIsGradientEnabled(false);
@@ -476,8 +476,8 @@ export default function CustomThemeSettings({ onBack, onClose }: Props) {
         </div>
       )}
 
-      <button onClick={() => {}} className="bg-accent-primary w-full rounded-lg py-3 font-semibold text-white transition-opacity hover:opacity-90">
-        저장
+      <button onClick={onClose} className="bg-accent-primary w-full rounded-lg py-3 font-semibold text-white transition-opacity hover:opacity-90">
+        완료
       </button>
     </>
   );

@@ -102,7 +102,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           root.style.setProperty('--button-hover-bg', getColorValue(savedAutoColor, 100));
 
           // 폰트 초기화
-          document.body.style.fontFamily = "'Noto Sans KR', sans-serif";
+          document.body.style.fontFamily = "'Jua', sans-serif";
           document.body.style.fontSize = '16px';
         }
       }
@@ -111,8 +111,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       root.style.background = '';
       const propsToRemove = ['--bg-primary', '--bg-secondary', '--text-primary', '--text-secondary', '--text-muted', '--accent-primary', '--accent-hover', '--border-color', '--nav-bg', '--button-hover-bg'];
       propsToRemove.forEach((p) => root.style.removeProperty(p));
-      document.body.style.fontFamily = '';
-      document.body.style.fontSize = '';
+
+      // 폰트 전용 모드 설정 복구 (기본/라이트/다크 테마에서도 유지)
+      const savedFontFamily = localStorage.getItem('fontOnly_fontFamily');
+      const savedFontSize = localStorage.getItem('fontOnly_fontSize');
+
+      if (savedFontFamily) {
+        document.body.style.fontFamily = savedFontFamily;
+      } else {
+        document.body.style.fontFamily = '';
+      }
+
+      if (savedFontSize) {
+        document.body.style.fontSize = `${savedFontSize}px`;
+      } else {
+        document.body.style.fontSize = '';
+      }
     }
   }, [theme]);
 

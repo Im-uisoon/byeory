@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+body {
+  font-family: 'Jua', sans-serif;
+}
+
 @theme {
   /* 배경색 (bg-*) */
   --color-bg-primary: var(--bg-primary);
