@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
+import { useAuth } from '../../contexts/AuthContext';
+
 function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -12,8 +15,7 @@ function LoginPage() {
 
     // 간단한 로그인 처리 (실제로는 API 호출)
     if (email && password) {
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', email);
+      login(email);
       navigate('/profile');
     }
   };

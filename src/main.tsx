@@ -13,21 +13,25 @@ import CommunityPage from './pages/community/CommunityPage.tsx';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import ProfilePage from './pages/profile/ProfilePage.tsx';
 
+import { AuthProvider } from './contexts/AuthContext.tsx';
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/join" element={<JoinPage />} />
-          <Route path="/forgot-password" element={<FindPasswordPage />} />
-          <Route path="/posts" element={<PostPage />} />
-          <Route path="/todo" element={<TodoPage />} />
-          <Route path="/community" element={<CommunityPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/join" element={<JoinPage />} />
+            <Route path="/forgot-password" element={<FindPasswordPage />} />
+            <Route path="/posts" element={<PostPage />} />
+            <Route path="/todo" element={<TodoPage />} />
+            <Route path="/community" element={<CommunityPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeProvider>
   </StrictMode>,
 );
