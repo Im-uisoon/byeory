@@ -10,6 +10,7 @@ import PostPage from './pages/post/PostPage.tsx';
 import TodoPage from './pages/todo/TodoPage.tsx';
 import CommunityPage from './pages/community/CommunityPage.tsx';
 import { ThemeProvider } from './contexts/ThemeContext.tsx';
+import ProfilePage from './pages/profile/ProfilePage.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/posts" element={<PostPage />} />
           <Route path="/todo" element={<TodoPage />} />
           <Route path="/community" element={<CommunityPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

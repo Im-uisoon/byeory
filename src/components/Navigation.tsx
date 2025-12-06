@@ -104,21 +104,23 @@ function Navigation() {
 
           {/* 사용자 아이콘 영역 */}
           <div className="flex items-center gap-4">
-            <button
-              className="rounded-full p-2 transition-colors"
-              style={{ color: 'var(--text-muted)' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--button-hover-bg)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user">
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </button>
+            <Link to="/profile">
+              <button
+                className="rounded-full p-2 transition-colors"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--button-hover-bg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </button>
+            </Link>
             <button
               onClick={() => setIsSettingsOpen(true)}
               className="rounded-full p-2 transition-colors"
@@ -154,22 +156,25 @@ function Navigation() {
           </Link>
 
           {/* 사용자 아이콘 영역 */}
+
           <div className="flex items-center gap-3">
-            <button
-              className="rounded-full p-2 transition-colors"
-              style={{ color: 'var(--text-muted)' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--button-hover-bg)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user">
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </button>
+            <Link to="/profile">
+              <button
+                className="rounded-full p-2 transition-colors"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--button-hover-bg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </button>
+            </Link>
             <button
               onClick={() => setIsSettingsOpen(true)}
               className="rounded-full p-2 transition-colors"
@@ -188,15 +193,16 @@ function Navigation() {
             </button>
           </div>
         </div>
-      </div>
+      </div >
 
       {/* 모바일 버전 네비게이션 - 하단 고정 */}
-      <div
+      < div
         className="fixed right-0 bottom-0 left-0 z-50 shadow-lg md:hidden"
         style={{
           backgroundColor: 'var(--nav-bg)',
           borderTop: '1px solid var(--border-color)',
-        }}
+        }
+        }
       >
         <div className="flex items-center justify-around py-2">
           {/* Home 버튼 */}
@@ -304,10 +310,10 @@ function Navigation() {
             <span className="text-xs">커뮤니티</span>
           </Link>
         </div>
-      </div>
+      </div >
 
       {/* 설정 모달 */}
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      < SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   );
 }
