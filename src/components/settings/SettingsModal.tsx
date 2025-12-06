@@ -34,7 +34,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           <>
             {/* 헤더 */}
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-text-primary text-2xl font-bold">설정</h2>
+              <h2 className="text-text-primary text-2xl">설정</h2>
               <button onClick={handleClose} className="text-text-muted hover:bg-button-hover rounded-full p-2 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -52,7 +52,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
                   </svg>
                 </div>
-                <span className="text-text-primary font-semibold">테마 설정</span>
+                <span className="text-text-primary">테마 설정</span>
               </button>
 
               {/* 메뉴 편집 버튼 (예시) */}
@@ -64,7 +64,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <line x1="4" y1="18" x2="20" y2="18"></line>
                   </svg>
                 </div>
-                <span className="text-text-primary font-semibold">메뉴 편집</span>
+                <span className="text-text-primary">메뉴 편집</span>
               </button>
             </div>
           </>

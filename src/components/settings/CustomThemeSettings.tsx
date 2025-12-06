@@ -30,7 +30,7 @@ const GRADIENT_DIRECTIONS = [
 
 export default function CustomThemeSettings({ onBack, onClose }: Props) {
   const { theme, setTheme } = useTheme();
-  const [customTab, setCustomTab] = useState<'auto' | 'manual'>('auto');
+  const [customTab, setCustomTab] = useState<'font' | 'auto' | 'manual'>('font');
 
   // 자동 모드 선택 상태
   const [selectedAutoColor, setSelectedAutoColor] = useState<ColorName | null>(null);
@@ -66,10 +66,23 @@ export default function CustomThemeSettings({ onBack, onClose }: Props) {
   const [startPos, setStartPos] = useState<number>(() => getSavedSetting('startPos', 0));
   const [endPos, setEndPos] = useState<number>(() => getSavedSetting('endPos', 100));
 
-  // 1. 초기 로드 (자동 탭 선택 상태 복구)
+  // 1. 초기 로드 (자동 탭 선택 상태 복구 + 폰트 전용 모드)
   useEffect(() => {
     const savedAuto = localStorage.getItem('customThemeColor') as ColorName | null;
     if (savedAuto) setSelectedAutoColor(savedAuto);
+
+    // 폰트 전용 모드 설정 복구
+    const savedFontFamily = localStorage.getItem('fontOnly_fontFamily');
+    const savedFontSize = localStorage.getItem('fontOnly_fontSize');
+
+    if (savedFontFamily) {
+      setFontFamily(savedFontFamily);
+      document.body.style.fontFamily = savedFontFamily;
+    }
+    if (savedFontSize) {
+      setFontSize(Number(savedFontSize));
+      document.body.style.fontSize = `${savedFontSize}px`;
+    }
   }, []);
 
   // 2. [Auto] 로직
@@ -193,13 +206,79 @@ export default function CustomThemeSettings({ onBack, onClose }: Props) {
 
       {/* 탭 버튼 */}
       <div className="bg-button-hover mb-6 flex gap-2 rounded-lg p-1">
-        <button onClick={() => setCustomTab('auto')} className={`flex-1 rounded-md py-2 font-medium transition-all ${customTab === 'auto' ? 'bg-bg-secondary text-text-primary shadow-sm' : 'text-text-muted'}`}>
+        <button onClick={() => setCustomTab('font')} className={`flex-1 rounded-md py-2 text-sm font-medium transition-all ${customTab === 'font' ? 'bg-bg-secondary text-text-primary shadow-sm' : 'text-text-muted'}`}>
+          폰트
+        </button>
+        <button onClick={() => setCustomTab('auto')} className={`flex-1 rounded-md py-2 text-sm font-medium transition-all ${customTab === 'auto' ? 'bg-bg-secondary text-text-primary shadow-sm' : 'text-text-muted'}`}>
           자동
         </button>
-        <button onClick={() => setCustomTab('manual')} className={`flex-1 rounded-md py-2 font-medium transition-all ${customTab === 'manual' ? 'bg-bg-secondary text-text-primary shadow-sm' : 'text-text-muted'}`}>
+        <button onClick={() => setCustomTab('manual')} className={`flex-1 rounded-md py-2 text-sm font-medium transition-all ${customTab === 'manual' ? 'bg-bg-secondary text-text-primary shadow-sm' : 'text-text-muted'}`}>
           수동
         </button>
       </div>
+
+      {/* ================= 폰트 탭 콘텐츠 ================= */}
+      {customTab === 'font' && (
+        <div className="mb-4 space-y-6">
+          <p className="text-text-secondary mb-4 text-sm">현재 테마의 색상을 유지하면서 폰트만 변경합니다</p>
+
+          {/* 미리보기 */}
+          <div className="border-border bg-bg-primary relative flex h-32 w-full items-center justify-center rounded-xl border shadow-sm">
+            <span
+              className="text-text-primary font-bold"
+              style={{
+                fontFamily: fontFamily,
+                fontSize: `${fontSize * 1.5}px`,
+              }}
+            >
+              벼리
+            </span>
+          </div>
+
+          {/* 폰트 설정 */}
+          <div className="border-border bg-bg-secondary space-y-5 rounded-xl border p-4 shadow-sm">
+            <div className="flex-1 space-y-2">
+              <label className="text-text-secondary text-xs font-medium">Font Family</label>
+              <select
+                value={fontFamily}
+                onChange={(e) => {
+                  setFontFamily(e.target.value);
+                  document.body.style.fontFamily = e.target.value;
+                  localStorage.setItem('fontOnly_fontFamily', e.target.value);
+                }}
+                className="border-border text-text-primary focus:border-accent-primary w-full rounded-md border bg-transparent p-2 text-sm focus:outline-none"
+              >
+                {FONT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-text-secondary text-xs font-medium">Font Size</label>
+                <span className="text-text-primary text-xs font-medium">{fontSize}px</span>
+              </div>
+              <input
+                type="range"
+                min="12"
+                max="24"
+                step="1"
+                value={fontSize}
+                onChange={(e) => {
+                  const size = Number(e.target.value);
+                  setFontSize(size);
+                  document.body.style.fontSize = `${size}px`;
+                  localStorage.setItem('fontOnly_fontSize', size.toString());
+                }}
+                className="accent-accent-primary h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================= 자동 탭 콘텐츠 ================= */}
       {customTab === 'auto' && (

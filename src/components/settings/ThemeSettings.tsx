@@ -51,14 +51,14 @@ export default function ThemeSettings({ onBack, onClose, onNavigateToCustom }: P
   return (
     <>
       {/* 헤더 */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="border-border mb-10 flex items-center justify-between border-b pb-5">
         <button onClick={onBack} className="text-text-muted hover:bg-button-hover rounded-full p-2 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
         </button>
-        <h2 className="text-text-primary text-2xl font-bold">테마 설정</h2>
+        <h2 className="text-text-primary text-xl">테마 설정</h2>
         <button onClick={onClose} className="text-text-muted hover:bg-button-hover rounded-full p-2 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -68,9 +68,9 @@ export default function ThemeSettings({ onBack, onClose, onNavigateToCustom }: P
       </div>
 
       {/* 테마 목록 */}
-      <div className="mb-4 space-y-3">
+      <div className="mb-4 space-y-5">
         {themeOptions.map((option) => (
-          <button key={option.value} onClick={() => handleThemeSelect(option.value)} className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 transition-all ${option.value === 'default' ? (theme === option.value ? 'border-2 border-pink-400 bg-gradient-to-r from-purple-100 via-pink-100 to-orange-100' : 'border-border border-2 bg-transparent hover:border-pink-300') : theme === option.value ? 'border-accent-primary bg-button-hover border-2' : 'border-border hover:border-accent-primary border-2 bg-transparent'}`}>
+          <button key={option.value} onClick={() => handleThemeSelect(option.value)} className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 transition-all ${option.value === 'default' ? (theme === option.value ? 'border-2 border-pink-400 bg-gradient-to-r from-purple-100 via-pink-100 to-orange-100' : 'border-2 border-gray-300 bg-transparent hover:border-gray-400') : option.value === 'light' ? (theme === option.value ? 'bg-button-hover border-2 border-blue-400' : 'border-2 border-gray-300 bg-transparent hover:border-gray-400') : option.value === 'dark' ? (theme === option.value ? 'bg-button-hover border-2 border-blue-400' : 'border-2 border-gray-300 bg-transparent hover:border-gray-400') : theme === option.value ? 'border-accent-primary bg-button-hover border-2' : 'border-2 border-gray-300 bg-transparent hover:border-gray-400'}`}>
             {/* 아이콘 */}
             {option.value === 'default' ? (
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={theme === option.value ? 'text-pink-500' : 'text-text-muted'}>
@@ -82,20 +82,11 @@ export default function ThemeSettings({ onBack, onClose, onNavigateToCustom }: P
               </svg>
             ) : option.value === 'custom' ? (
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
-                <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" />
-                <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
-                <path d="M12 2v2" />
-                <path d="M12 22v-2" />
-                <path d="m17 20.66-1-1.73" />
-                <path d="M11 10.27 7 3.34" />
-                <path d="m20.66 17-1.73-1" />
-                <path d="m3.34 7 1.73 1" />
-                <path d="M14 12h8" />
-                <path d="M2 12h2" />
-                <path d="m20.66 7-1.73 1" />
-                <path d="m3.34 17 1.73-1" />
-                <path d="m17 3.34-1 1.73" />
-                <path d="m11 13.73-4 6.93" />
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                <path d="M5 3v4" />
+                <path d="M19 17v4" />
+                <path d="M3 5h4" />
+                <path d="M17 19h4" />
               </svg>
             ) : option.value === 'dark' ? (
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
