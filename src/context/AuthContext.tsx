@@ -1,54 +1,52 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface AuthContextType {
     isLoggedIn: boolean;
-    userEmail: string | null;
     login: (email: string) => void;
     logout: () => void;
+    user: { email: string } | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [user, setUser] = useState<{ email: string } | null>(null);
 
     useEffect(() => {
-        // 초기 로딩 시 localStorage 체크
         const storedLogin = localStorage.getItem('isLoggedIn');
         const storedEmail = localStorage.getItem('userEmail');
-
-        if (storedLogin === 'true' && storedEmail) {
+        if (storedLogin === 'true') {
             setIsLoggedIn(true);
-            setUserEmail(storedEmail);
+            setUser({ email: storedEmail || '' });
         }
     }, []);
 
     const login = (email: string) => {
+        setIsLoggedIn(true);
+        setUser({ email });
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userEmail', email);
-        setIsLoggedIn(true);
-        setUserEmail(email);
     };
 
     const logout = () => {
+        setIsLoggedIn(false);
+        setUser(null);
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('userEmail');
-        setIsLoggedIn(false);
-        setUserEmail(null);
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, userEmail, login, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn, login, logout, user }}>
             {children}
         </AuthContext.Provider>
     );
-}
+};
 
-export function useAuth() {
+export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
         throw new Error('useAuth must be used within an AuthProvider');
     }
     return context;
-}
+};

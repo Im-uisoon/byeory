@@ -1,220 +1,407 @@
-/* 기본 테마 (인스타그램 감성) */
-[data-theme='default'] {
-  --bg-primary: rgb(245 240 250); /* 은은한 보라색 배경 */
-  --bg-secondary: rgb(255 255 255);
-  --text-primary: rgb(0 0 0); /* 검은색 기본 글씨 */
-  --text-secondary: rgb(107 114 128); /* gray-500 */
-  --text-muted: rgb(156 163 175); /* gray-400 */
-  --accent-primary: rgb(245 101 184); /* 핑크 (그라데이션 시작색) */
-  --accent-hover: rgb(236 72 153); /* 진한 핑크 */
-  --border-color: rgb(244 114 182); /* 분홍색 border */
-  --nav-bg: rgb(255 255 255);
-  --button-hover-bg: rgb(243 244 246); /* gray-100 */
-  --button-text: rgb(255 255 255); /* 버튼 안 흰색 글씨 */
-
-  /* 그라데이션 색상 */
-  --gradient-start: rgb(245 101 184); /* 핑크 */
-  --gradient-end: rgb(192 132 252); /* 보라 */
-  --gradient-start-hover: rgb(236 72 153); /* 진한 핑크 */
-  --gradient-end-hover: rgb(168 85 247); /* 진한 보라 */
-}
-
-/* 라이트 모드 */
-[data-theme='light'] {
-  --bg-primary: rgb(249 250 251); /* gray-50 */
-  --bg-secondary: rgb(255 255 255);
-  --text-primary: rgb(0 0 0);
-  --text-secondary: rgb(107 114 128); /* gray-500 */
-  --text-muted: rgb(156 163 175); /* gray-400 */
-  --accent-primary: rgb(59 130 246); /* blue-500 */
-  --accent-hover: rgb(37 99 235); /* blue-600 */
-  --border-color: rgb(229 231 235); /* gray-200 */
-  --nav-bg: rgb(255 255 255);
-  --button-hover-bg: rgb(243 244 246); /* gray-100 */
-}
-
-/* 다크 모드 */
-[data-theme='dark'] {
-  --bg-primary: rgb(17 24 39); /* gray-900 */
-  --bg-secondary: rgb(31 41 55); /* gray-800 */
-  --text-primary: rgb(156 163 175); /* gray-400 - 다크모드에서 보이는 밝은 회색 */
-  --text-secondary: rgb(156 163 175); /* gray-400 */
-  --text-muted: rgb(107 114 128); /* gray-500 */
-  --accent-primary: rgb(96 165 250); /* blue-400 */
-  --accent-hover: rgb(59 130 246); /* blue-500 */
-  --border-color: rgb(55 65 81); /* gray-700 */
-  --nav-bg: rgb(31 41 55); /* gray-800 */
-  --button-hover-bg: rgb(55 65 81); /* gray-700 */
-}
-
-/* 다크 모드 그라데이션 배경 */
-[data-theme='dark'] .theme-bg-gradient {
-  background: linear-gradient(to bottom right, rgb(17 24 39), rgb(55 65 81));
-}
-
-/* 개인 설정 (사용자가 커스터마이징 가능) */
-[data-theme='custom'] {
-  --bg-primary: var(--custom-bg-primary, rgb(255 255 255));
-  --bg-secondary: var(--custom-bg-secondary, rgb(245 245 245));
-  --text-primary: rgb(0 0 0);
-  --text-secondary: var(--custom-text-secondary, rgb(107 114 128));
-  --text-muted: var(--custom-text-muted, rgb(156 163 175));
-  --accent-primary: var(--custom-accent-primary, rgb(59 130 246));
-  --accent-hover: var(--custom-accent-hover, rgb(37 99 235));
-  --border-color: var(--custom-border-color, rgb(229 231 235));
-  --nav-bg: var(--custom-nav-bg, rgb(255 255 255));
-  --button-hover-bg: var(--custom-button-hover-bg, rgb(243 244 246));
-}
-
-/* Tailwind 색상 팔레트 - 자동 테마 생성용 */
 :root {
-  /* Rose */
-  --color-rose-50: rgb(255 241 242);
-  --color-rose-100: rgb(255 228 230);
-  --color-rose-200: rgb(254 205 211);
-  --color-rose-300: rgb(253 164 175);
-  --color-rose-400: rgb(251 113 133);
-  --color-rose-500: rgb(244 63 94);
-  --color-rose-600: rgb(225 29 72);
-  --color-rose-700: rgb(190 18 60);
-  --color-rose-800: rgb(159 18 57);
-  --color-rose-900: rgb(136 19 55);
+    /* Base defaults */
+    --bg-solid: #ffffff;
+    --bg-gradient: none;
+    --bg-header: #ffffff;
+    --bg-modal: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-secondary: #f9fafb;
 
-  /* Orange */
-  --color-orange-50: rgb(255 247 237);
-  --color-orange-100: rgb(255 237 213);
-  --color-orange-200: rgb(254 215 170);
-  --color-orange-300: rgb(253 186 116);
-  --color-orange-400: rgb(251 146 60);
-  --color-orange-500: rgb(249 115 22);
-  --color-orange-600: rgb(234 88 12);
-  --color-orange-700: rgb(194 65 12);
-  --color-orange-800: rgb(154 52 18);
-  --color-orange-900: rgb(124 45 18);
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b7280;
 
-  /* Yellow */
-  --color-yellow-50: rgb(254 252 232);
-  --color-yellow-100: rgb(254 249 195);
-  --color-yellow-200: rgb(254 240 138);
-  --color-yellow-300: rgb(253 224 71);
-  --color-yellow-400: rgb(250 204 21);
-  --color-yellow-500: rgb(234 179 8);
-  --color-yellow-600: rgb(202 138 4);
-  --color-yellow-700: rgb(161 98 7);
-  --color-yellow-800: rgb(133 77 14);
-  --color-yellow-900: rgb(113 63 18);
+    /* Text Gradient Support */
+    --text-gradient: none;
+    --text-fill-color: inherit;
 
-  /* Lime */
-  --color-lime-50: rgb(247 254 231);
-  --color-lime-100: rgb(236 252 203);
-  --color-lime-200: rgb(217 249 157);
-  --color-lime-300: rgb(190 242 100);
-  --color-lime-400: rgb(163 230 53);
-  --color-lime-500: rgb(132 204 22);
-  --color-lime-600: rgb(101 163 13);
-  --color-lime-700: rgb(77 124 15);
-  --color-lime-800: rgb(63 98 18);
-  --color-lime-900: rgb(54 83 20);
+    --border-color: #e5e7eb;
+    --icon-color: #4b5563;
 
-  /* Emerald */
-  --color-emerald-50: rgb(236 253 245);
-  --color-emerald-100: rgb(209 250 229);
-  --color-emerald-200: rgb(167 243 208);
-  --color-emerald-300: rgb(110 231 183);
-  --color-emerald-400: rgb(52 211 153);
-  --color-emerald-500: rgb(16 185 129);
-  --color-emerald-600: rgb(5 150 105);
-  --color-emerald-700: rgb(4 120 87);
-  --color-emerald-800: rgb(6 95 70);
-  --color-emerald-900: rgb(6 78 59);
+    --btn-bg: #2563eb;
+    --btn-text: #ffffff;
+    --btn-hover: #1d4ed8;
 
-  /* Indigo */
-  --color-indigo-50: rgb(238 242 255);
-  --color-indigo-100: rgb(224 231 255);
-  --color-indigo-200: rgb(199 210 254);
-  --color-indigo-300: rgb(165 180 252);
-  --color-indigo-400: rgb(129 140 248);
-  --color-indigo-500: rgb(99 102 241);
-  --color-indigo-600: rgb(79 70 229);
-  --color-indigo-700: rgb(67 56 202);
-  --color-indigo-800: rgb(55 48 163);
-  --color-indigo-900: rgb(49 46 129);
+    /* Font Settings */
+    --font-family: 'Noto Sans KR', sans-serif;
+    --font-size: 16px;
 
-  /* Purple */
-  --color-purple-50: rgb(250 245 255);
-  --color-purple-100: rgb(243 232 255);
-  --color-purple-200: rgb(233 213 255);
-  --color-purple-300: rgb(216 180 254);
-  --color-purple-400: rgb(192 132 252);
-  --color-purple-500: rgb(168 85 247);
-  --color-purple-600: rgb(147 51 234);
-  --color-purple-700: rgb(126 34 206);
-  --color-purple-800: rgb(107 33 168);
-  --color-purple-900: rgb(88 28 135);
-
-  /* Pink */
-  --color-pink-50: rgb(253 242 248);
-  --color-pink-100: rgb(252 231 243);
-  --color-pink-200: rgb(251 207 232);
-  --color-pink-300: rgb(249 168 212);
-  --color-pink-400: rgb(244 114 182);
-  --color-pink-500: rgb(236 72 153);
-  --color-pink-600: rgb(219 39 119);
-  --color-pink-700: rgb(190 24 93);
-  --color-pink-800: rgb(157 23 77);
-  --color-pink-900: rgb(131 24 67);
-
-  /* Slate */
-  --color-slate-50: rgb(248 250 252);
-  --color-slate-100: rgb(241 245 249);
-  --color-slate-200: rgb(226 232 240);
-  --color-slate-300: rgb(203 213 225);
-  --color-slate-400: rgb(148 163 184);
-  --color-slate-500: rgb(100 116 139);
-  --color-slate-600: rgb(71 85 105);
-  --color-slate-700: rgb(51 65 85);
-  --color-slate-800: rgb(30 41 59);
-  --color-slate-900: rgb(15 23 42);
+    /* Manual Theme Defaults */
+    --manual-bg-color: 255, 255, 255;
+    --manual-bg-intensity: 1;
+    --manual-text-color: 26, 26, 26;
+    --manual-text-intensity: 1;
 }
 
-/* 인스타그램 감성 버튼 그라데이션 스타일 */
-[data-theme='default'] .btn-gradient,
-[data-theme='default'] button.bg-accent-primary,
-[data-theme='default'] .bg-accent-primary,
-[data-theme='default'] button[class*='bg-accent'],
-[data-theme='default'] .button-primary {
-  background: linear-gradient(to right, rgb(233 213 255), rgb(252 231 243), rgb(255 237 213)) !important;
-  color: rgb(0 0 0) !important;
-  border: 2px solid rgb(244 114 182) !important;
-  transition: all 0.3s ease;
+/* 기본 테마 - Gradient */
+[data-theme='default'] {
+    --bg-gradient: linear-gradient(120deg, #ffcb6b 0%, #3d8bff 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.3);
+    --bg-modal: rgba(255, 255, 255, 0.85);
+    --bg-card: rgba(255, 255, 255, 0.5);
+    --bg-card-secondary: rgba(255, 255, 255, 0.3);
+    --text-primary: #1e293b;
+    --text-gradient: none;
+    --text-fill-color: #1e293b;
+    --text-secondary: #475569;
+    --border-color: rgba(30, 41, 59, 0.1);
+    --icon-color: #1e293b;
+    --btn-bg: #2563eb;
+    --btn-text: #ffffff;
+    --btn-hover: #1d4ed8;
 }
 
-[data-theme='default'] .btn-gradient:hover,
-[data-theme='default'] button.bg-accent-primary:hover,
-[data-theme='default'] .bg-accent-primary:hover,
-[data-theme='default'] button[class*='bg-accent']:hover,
-[data-theme='default'] .button-primary:hover {
-  background: linear-gradient(to right, rgb(216 180 254), rgb(249 168 212), rgb(253 186 116)) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(244 114 182 / 0.3);
+/* 라이트 테마 - Blue Gradient */
+[data-theme='light'] {
+    --bg-gradient: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #3d8bff;
+    --text-gradient: none;
+    --text-fill-color: #3d8bff;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.6);
+    --icon-color: #3d8bff;
+    --btn-bg: #3d8bff;
+    --btn-text: #ffffff;
+    --btn-hover: #1e3a8a;
 }
 
-[data-theme='default'] .text-accent-primary {
-  background: linear-gradient(135deg, rgb(245 101 184), rgb(192 132 252));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* 다크 테마 - Solid Dark */
+[data-theme='dark'] {
+    --bg-gradient: none;
+    --bg-solid: #0f172a;
+    --bg-header: #1e293b;
+    --bg-modal: #1e293b;
+    --bg-card: #334155;
+    --bg-card-secondary: #0f172a;
+    --text-primary: #60a5fa;
+    --text-gradient: none;
+    --text-fill-color: #60a5fa;
+    --text-secondary: #cbd5e1;
+    --border-color: #334155;
+    --icon-color: #94a3b8;
+    --btn-bg: #3b82f6;
+    --btn-text: #ffffff;
+    --btn-hover: #2563eb;
 }
 
-/* 분홍색 border 적용 */
-[data-theme='default'] .border-border {
-  border-color: var(--border-color) !important;
+/* Manual Theme */
+[data-theme='manual'] {
+    --bg-gradient: var(--manual-gradient, none);
+    --bg-solid: rgba(var(--manual-bg-color), var(--manual-bg-intensity));
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+
+    /* Use the manual text color for primary text/icons */
+    --text-primary: rgba(var(--manual-text-color), var(--manual-text-intensity));
+    --text-gradient: none;
+    --text-fill-color: rgba(var(--manual-text-color), var(--manual-text-intensity));
+
+    --text-secondary: #374151;
+    --border-color: rgba(var(--manual-text-color), 0.2);
+    --icon-color: rgba(var(--manual-text-color), var(--manual-text-intensity));
+
+    --btn-bg: var(--manual-btn-bg, #2563eb);
+    --btn-text: #ffffff;
+    --btn-hover: var(--manual-btn-bg, #1d4ed8);
 }
 
-[data-theme='default'] .border-accent-primary {
-  border-color: var(--accent-primary) !important;
+/* =========================================
+   Recommended Themes (12 Colors)
+   ========================================= */
+
+/* 1. Purple */
+[data-theme='custom-purple'] {
+    --bg-gradient: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #6b21a8;
+    --text-gradient: linear-gradient(120deg, #9d50bb 0%, #6e48aa 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #6b21a8;
+    --btn-bg: #7e22ce;
+    --btn-text: #ffffff;
+    --btn-hover: #6b21a8;
 }
 
-[data-theme='default'] .hover\:border-accent-primary:hover {
-  border-color: var(--accent-primary) !important;
+/* 2. Green */
+[data-theme='custom-green'] {
+    --bg-gradient: linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #15803d;
+    --text-gradient: linear-gradient(120deg, #16a34a 0%, #15803d 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #15803d;
+    --btn-bg: #16a34a;
+    --btn-text: #ffffff;
+    --btn-hover: #15803d;
+}
+
+/* 3. Blue */
+[data-theme='custom-blue'] {
+    --bg-gradient: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #1d4ed8;
+    --text-gradient: linear-gradient(120deg, #2563eb 0%, #1d4ed8 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #1d4ed8;
+    --btn-bg: #2563eb;
+    --btn-text: #ffffff;
+    --btn-hover: #1d4ed8;
+}
+
+/* 4. Red */
+[data-theme='custom-red'] {
+    --bg-gradient: linear-gradient(120deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #be123c;
+    --text-gradient: linear-gradient(120deg, #e11d48 0%, #be123c 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #be123c;
+    --btn-bg: #e11d48;
+    --btn-text: #ffffff;
+    --btn-hover: #be123c;
+}
+
+/* 5. Orange */
+[data-theme='custom-orange'] {
+    --bg-gradient: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #c2410c;
+    --text-gradient: linear-gradient(120deg, #ea580c 0%, #c2410c 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #c2410c;
+    --btn-bg: #ea580c;
+    --btn-text: #ffffff;
+    --btn-hover: #c2410c;
+}
+
+/* 6. Pink */
+[data-theme='custom-pink'] {
+    --bg-gradient: linear-gradient(120deg, #ffc3a0 0%, #ffafbd 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #be185d;
+    --text-gradient: linear-gradient(120deg, #db2777 0%, #be185d 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #be185d;
+    --btn-bg: #db2777;
+    --btn-text: #ffffff;
+    --btn-hover: #be185d;
+}
+
+/* 7. Teal */
+[data-theme='custom-teal'] {
+    --bg-gradient: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #0f766e;
+    --text-gradient: linear-gradient(120deg, #14b8a6 0%, #0f766e 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #0f766e;
+    --btn-bg: #14b8a6;
+    --btn-text: #ffffff;
+    --btn-hover: #0f766e;
+}
+
+/* 8. Indigo */
+[data-theme='custom-indigo'] {
+    --bg-gradient: linear-gradient(120deg, #a18cd1 0%, #fbc2eb 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #4338ca;
+    --text-gradient: linear-gradient(120deg, #6366f1 0%, #4338ca 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #4338ca;
+    --btn-bg: #6366f1;
+    --btn-text: #ffffff;
+    --btn-hover: #4338ca;
+}
+
+/* 9. Gray */
+[data-theme='custom-gray'] {
+    --bg-gradient: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #334155;
+    --text-gradient: none;
+    --text-fill-color: #334155;
+    --text-secondary: #475569;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #334155;
+    --btn-bg: #475569;
+    --btn-text: #ffffff;
+    --btn-hover: #334155;
+}
+
+/* 10. Sunset */
+[data-theme='custom-sunset'] {
+    --bg-gradient: linear-gradient(120deg, #fa709a 0%, #fee140 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #db2777;
+    --text-gradient: linear-gradient(120deg, #f472b6 0%, #db2777 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #db2777;
+    --btn-bg: #db2777;
+    --btn-text: #ffffff;
+    --btn-hover: #be185d;
+}
+
+/* 11. Ocean */
+[data-theme='custom-ocean'] {
+    --bg-gradient: linear-gradient(to top, #48c6ef 0%, #6f86d6 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #1e40af;
+    --text-gradient: linear-gradient(120deg, #3b82f6 0%, #1e40af 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #1e40af;
+    --btn-bg: #2563eb;
+    --btn-text: #ffffff;
+    --btn-hover: #1e40af;
+}
+
+/* 12. Forest */
+[data-theme='custom-forest'] {
+    --bg-gradient: linear-gradient(120deg, #f093fb 0%, #f5576c 100%);
+    --bg-solid: transparent;
+    --bg-header: rgba(255, 255, 255, 0.6);
+    --bg-modal: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.6);
+    --bg-card-secondary: rgba(255, 255, 255, 0.4);
+    --text-primary: #be123c;
+    --text-gradient: linear-gradient(120deg, #fb7185 0%, #be123c 100%);
+    --text-fill-color: transparent;
+    --text-secondary: #374151;
+    --border-color: rgba(255, 255, 255, 0.4);
+    --icon-color: #be123c;
+    --btn-bg: #e11d48;
+    --btn-text: #ffffff;
+    --btn-hover: #be123c;
+}
+
+body {
+    background-color: var(--bg-solid);
+    background-image: var(--bg-gradient);
+    color: var(--text-secondary);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    min-height: 100vh;
+    transition: background 0.3s ease, color 0.3s ease, font-size 0.2s ease;
+    background-attachment: fixed;
+}
+
+/* Utility classes to use variables */
+.theme-bg-header {
+    background-color: var(--bg-header);
+    backdrop-filter: blur(10px);
+}
+
+.theme-bg-modal {
+    background-color: var(--bg-modal);
+    backdrop-filter: blur(10px);
+}
+
+.theme-bg-card {
+    background-color: var(--bg-card);
+    backdrop-filter: blur(5px);
+}
+
+.theme-bg-card-secondary {
+    background-color: var(--bg-card-secondary);
+}
+
+.theme-text-primary {
+    color: var(--text-primary);
+    background-image: var(--text-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: var(--text-fill-color);
+}
+
+.theme-text-secondary {
+    color: var(--text-secondary);
+}
+
+.theme-border {
+    border-color: var(--border-color);
+}
+
+.theme-icon {
+    color: var(--icon-color);
+}
+
+.theme-btn {
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    transition: all 0.2s;
+}
+
+.theme-btn:hover {
+    background-color: var(--btn-hover);
+    transform: translateY(-1px);
 }

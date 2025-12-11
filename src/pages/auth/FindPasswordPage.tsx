@@ -1,104 +1,247 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Mail, ArrowRight, CheckCircle, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 function FindPasswordPage() {
-  const [email, setEmail] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
+    // Steps: 'email' -> 'verify' -> 'reset' -> 'complete'
+    const [step, setStep] = useState<'email' | 'verify' | 'reset' | 'complete'>('email');
+    const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    // Form States
+    const [email, setEmail] = useState('');
+    const [code, setCode] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
-    // 실제로는 비밀번호 재설정 이메일 발송 API 호출
-    if (email) {
-      setIsSubmitted(true);
-    }
-  };
+    // UI States
+    const [showPassword, setShowPassword] = useState(false);
+    const [timer, setTimer] = useState(180); // 3 minutes for code verification
 
-  return (
-    <div className="bg-bg-primary flex min-h-screen items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* 로고 */}
-        <Link to="/" className="mb-8 block text-center">
-          <img src="/logo.png" alt="벼리" className="mx-auto w-32" />
-          <h1 className="text-text-primary mb-2 text-3xl font-bold">비밀번호 찾기</h1>
-          <p className="text-text-secondary text-sm">{isSubmitted ? '이메일을 확인해주세요' : '가입하신 이메일 주소를 입력하세요'}</p>
-        </Link>
+    useEffect(() => {
+        let interval: any;
+        if (step === 'verify' && timer > 0) {
+            interval = setInterval(() => {
+                setTimer((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [step, timer]);
 
-        {/* 비밀번호 찾기 폼 */}
-        <div className="bg-bg-secondary border-border rounded-2xl border p-8 shadow-lg">
-          {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* 안내 메시지 */}
-              <div className="bg-accent-primary/10 border-accent-primary/30 rounded-lg border p-4">
-                <div className="flex gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-primary mb-0.5 flex-shrink-0">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 16v-4" />
-                    <path d="M12 8h.01" />
-                  </svg>
-                  <p className="text-text-secondary flex items-center text-sm">입력하신 이메일로 비밀번호 재설정 링크를 보내드립니다.</p>
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    };
+
+    // Step 1: Send Email Code (Mock SMTP)
+    const handleSendCode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        // Simulate API call
+        setTimeout(() => {
+            setIsLoading(false);
+            setStep('verify');
+            setTimer(180);
+            // In a real app, this would trigger the SMTP email send
+            console.log(`Verification code sent to ${email}`);
+        }, 1500);
+    };
+
+    // Step 2: Verify Code
+    const handleVerifyCode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        // Simulate API call
+        setTimeout(() => {
+            setIsLoading(false);
+            if (code.length === 6) { // Mock validation
+                setStep('reset');
+            } else {
+                alert('올바른 인증번호를 입력해주세요.');
+            }
+        }, 1000);
+    };
+
+    // Step 3: Reset Password
+    const handleResetPassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (password !== confirmPassword) {
+            alert('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
+        setIsLoading(true);
+        // Simulate API call
+        setTimeout(() => {
+            setIsLoading(false);
+            setStep('complete');
+        }, 1500);
+    };
+
+    return (
+        <div className="flex min-h-screen items-center justify-center px-4 py-12">
+            <div className="w-full max-w-md">
+                {/* Logo & Title */}
+                <div className="mb-8 text-center">
+                    <Link to="/login" className="mb-4 inline-block">
+                        <img src="/logo.png" alt="벼리" className="mx-auto w-32" />
+                    </Link>
+                    <h1 className="theme-text-primary mb-2 text-2xl font-bold">비밀번호 찾기</h1>
+                    <p className="theme-text-secondary text-sm">
+                        {step === 'email' && '가입 시 등록한 이메일을 입력해주세요.'}
+                        {step === 'verify' && '이메일로 전송된 인증번호를 입력해주세요.'}
+                        {step === 'reset' && '새로운 비밀번호를 설정해주세요.'}
+                        {step === 'complete' && '비밀번호가 성공적으로 변경되었습니다.'}
+                    </p>
                 </div>
-              </div>
 
-              {/* 이메일 입력 */}
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-text-primary block text-sm font-medium">
-                  이메일
-                </label>
-                <div className="relative">
-                  <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@email.com" required className="border-border text-text-primary placeholder:text-text-muted focus:border-accent-primary focus:ring-accent-primary/20 w-full rounded-lg border bg-transparent px-4 py-3 focus:ring-2 focus:outline-none" />
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted absolute top-1/2 right-3 -translate-y-1/2">
-                    <rect width="20" height="16" x="2" y="4" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                  </svg>
+                {/* Card Container */}
+                <div className="theme-bg-card theme-border rounded-2xl border p-8 shadow-lg backdrop-blur-md relative overflow-hidden">
+
+                    {/* Step 1: Email Input */}
+                    {step === 'email' && (
+                        <form onSubmit={handleSendCode} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="theme-text-primary block text-sm font-medium">이메일</label>
+                                <div className="relative border rounded-lg">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="example@email.com"
+                                        required
+                                        className="theme-border theme-text-primary placeholder:text-gray-400 w-full rounded-lg border bg-transparent px-4 py-3 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                                    />
+                                    <Mail className="theme-icon absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-70" />
+                                </div>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="theme-btn w-full rounded-lg py-3 font-semibold shadow-lg flex items-center justify-center gap-2"
+                            >
+                                {isLoading ? '전송 중...' : '인증번호 보내기'}
+                                {!isLoading && <ArrowRight className="w-4 h-4" />}
+                            </button>
+                            <div className="mt-6 text-center">
+                                <Link to="/login" className="theme-text-secondary hover:theme-text-primary text-sm inline-flex items-center gap-2 transition-colors">
+                                    <ArrowLeft className="w-4 h-4" />
+                                    로그인으로 돌아가기
+                                </Link>
+                            </div>
+                        </form>
+                    )}
+
+                    {/* Step 2: Verification Code */}
+                    {step === 'verify' && (
+                        <form onSubmit={handleVerifyCode} className="space-y-6">
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <label className="theme-text-primary block text-sm font-medium">인증번호</label>
+                                    <span className="text-red-500 text-sm font-medium">{formatTime(timer)}</span>
+                                </div>
+                                <div className="relative border rounded-lg">
+                                    <input
+                                        type="text"
+                                        value={code}
+                                        onChange={(e) => setCode(e.target.value)}
+                                        placeholder="6자리 인증번호"
+                                        maxLength={6}
+                                        required
+                                        className="theme-border theme-text-primary placeholder:text-gray-400 w-full rounded-lg border bg-transparent px-4 py-3 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all tracking-widest"
+                                    />
+                                    <CheckCircle className="theme-icon absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-70" />
+                                </div>
+                                <p className="text-xs theme-text-secondary mt-1">
+                                    이메일을 받지 못하셨나요?{' '}
+                                    <button type="button" onClick={() => setTimer(180)} className="theme-text-primary underline hover:opacity-80">
+                                        재전송
+                                    </button>
+                                </p>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="theme-btn w-full rounded-lg py-3 font-semibold shadow-lg flex items-center justify-center gap-2"
+                            >
+                                {isLoading ? '확인 중...' : '인증하기'}
+                            </button>
+                        </form>
+                    )}
+
+                    {/* Step 3: Reset Password */}
+                    {step === 'reset' && (
+                        <form onSubmit={handleResetPassword} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="theme-text-primary block text-sm font-medium">새 비밀번호</label>
+                                <div className="relative border rounded-lg">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        required
+                                        className="theme-border theme-text-primary placeholder:text-gray-400 w-full rounded-lg border bg-transparent px-4 py-3 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                                    />
+                                    <Lock className="theme-icon absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-70" />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="theme-text-primary block text-sm font-medium">비밀번호 확인</label>
+                                <div className="relative border rounded-lg">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        required
+                                        className="theme-border theme-text-primary placeholder:text-gray-400 w-full rounded-lg border bg-transparent px-4 py-3 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                                    />
+                                    <Lock className="theme-icon absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-70" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="theme-text-secondary hover:theme-text-primary absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="theme-btn w-full rounded-lg py-3 font-semibold shadow-lg"
+                            >
+                                {isLoading ? '변경 중...' : '비밀번호 변경'}
+                            </button>
+                        </form>
+                    )}
+
+                    {/* Step 4: Complete */}
+                    {step === 'complete' && (
+                        <div className="text-center py-6">
+                            <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
+                                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                            </div>
+                            <h3 className="theme-text-primary text-lg font-bold mb-2">변경 완료!</h3>
+                            <p className="theme-text-secondary text-sm mb-6">
+                                비밀번호가 성공적으로 변경되었습니다.<br />
+                                새로운 비밀번호로 로그인해주세요.
+                            </p>
+                            <Link
+                                to="/login"
+                                className="theme-btn w-full rounded-lg py-3 font-semibold shadow-lg block"
+                            >
+                                로그인하러 가기
+                            </Link>
+                        </div>
+                    )}
                 </div>
-              </div>
-
-              {/* 재설정 링크 전송 버튼 */}
-              <button type="submit" className="bg-accent-primary hover:bg-accent-hover w-full rounded-lg py-3 font-semibold text-white shadow-lg transition-colors">
-                재설정 링크 전송
-              </button>
-            </form>
-          ) : (
-            // 전송 완료 메시지
-            <div className="space-y-6 text-center">
-              <div className="bg-accent-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-primary">
-                  <path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z" />
-                  <path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10" />
-                </svg>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-text-primary text-lg font-semibold">이메일을 확인하세요</h3>
-                <p className="text-text-secondary text-sm">
-                  <span className="text-accent-primary font-medium">{email}</span>
-                  <br />위 주소로 비밀번호 재설정 링크를 전송했습니다.
-                </p>
-              </div>
-              <div className="bg-bg-primary rounded-lg p-4">
-                <p className="text-text-secondary text-xs">
-                  이메일이 오지 않나요?
-                  <br />
-                  스팸 메일함을 확인하거나 다시 시도해주세요.
-                </p>
-              </div>
-              <button onClick={() => setIsSubmitted(false)} className="text-accent-primary hover:text-accent-hover text-sm font-medium transition-colors">
-                다른 이메일로 시도하기
-              </button>
             </div>
-          )}
         </div>
-
-        {/* 로그인 링크 */}
-        <p className="text-text-secondary mt-6 text-center text-sm">
-          비밀번호가 기억나셨나요?{' '}
-          <Link to="/login" className="text-accent-primary hover:text-accent-hover font-medium transition-colors">
-            로그인
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default FindPasswordPage;
