@@ -16,9 +16,9 @@ export interface MenuItem {
 
 const DEFAULT_ITEMS: MenuItem[] = [
     { name: 'Home', path: '/home', icon: Home, id: '/home' },
-    { name: '포스트', path: '/post', icon: FileText, id: '/post' },
-    { name: 'Todo', path: '/todo', icon: CheckSquare, id: '/todo' },
-    { name: '커뮤니티', path: '/community', icon: Users, id: '/community' },
+    { name: 'Post', path: '/post', icon: FileText, id: '/post' },
+    { name: 'Community', path: '/community', icon: Users, id: '/community' },
+    { name: 'Market', path: '/market', icon: CheckSquare, id: '/market' },
 ];
 
 interface MenuContextType {

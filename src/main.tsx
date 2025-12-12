@@ -80,6 +80,7 @@ const RootRedirector = () => {
 };
 
 import { MenuProvider } from './components/settings/menu/MenuSettings';
+import Market from './pages/Market/MarketPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -95,6 +96,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/post" element={<Post />} />
             <Route path="/todo" element={<Todo />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/market" element={<Market />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
