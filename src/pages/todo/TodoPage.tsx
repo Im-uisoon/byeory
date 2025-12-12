@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import Navigation from '../../components/Header/Navigation';
-import { DailyView } from '../../components/Todo/DailyView';
-import { WeeklyView } from '../../components/Todo/WeeklyView';
-import { MonthlyView } from '../../components/Todo/MonthlyView';
+import { DailyView } from '../../components/Todo/Daily';
+import { WeeklyView } from '../../components/Todo/Weekly';
+import { MonthlyView } from '../../components/Todo/Monthly';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import type { Todo } from '../../types';
