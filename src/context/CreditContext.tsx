@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
+import { API_BASE_URL } from "@/config";
 
 export interface DailyQuest {
   id: string;
@@ -44,7 +45,7 @@ export const CreditProvider: React.FC<{ children: React.ReactNode }> = ({
     const token = localStorage.getItem("accessToken");
     if (!token) return;
     try {
-      const response = await fetch("http://localhost:8080/api/user/profile", {
+      const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -141,10 +142,10 @@ export const CreditProvider: React.FC<{ children: React.ReactNode }> = ({
             const saved = parsed.find((p: DailyQuest) => p.id === def.id);
             return saved
               ? {
-                  ...def,
-                  isCompleted: saved.isCompleted,
-                  isClaimable: saved.isClaimable,
-                }
+                ...def,
+                isCompleted: saved.isCompleted,
+                isClaimable: saved.isClaimable,
+              }
               : def;
           })
         );
@@ -200,7 +201,7 @@ export const CreditProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!token) return;
       try {
         const response = await fetch(
-          "http://localhost:8080/api/user/playtime",
+          `${API_BASE_URL}/api/user/playtime`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -238,7 +239,7 @@ export const CreditProvider: React.FC<{ children: React.ReactNode }> = ({
       const token = localStorage.getItem("accessToken");
       if (!token) return;
       try {
-        await fetch("http://localhost:8080/api/credits/add", {
+        await fetch(`${API_BASE_URL}/api/credits/add`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -291,7 +292,7 @@ export const CreditProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       try {
-        const response = await fetch("http://localhost:8080/api/quest/claim", {
+        const response = await fetch(`${API_BASE_URL}/api/quest/claim`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

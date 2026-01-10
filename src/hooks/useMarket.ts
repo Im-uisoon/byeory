@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useCredits } from '../context/CreditContext';
 import { STICKERS } from '../pages/post/constants';
+import { API_BASE_URL } from "@/config";
 
 
 export const useMarket = () => {
@@ -38,7 +39,7 @@ export const useMarket = () => {
         try {
             // 1. Fetch Purchased Items
             let backendPurchased: any[] = [];
-            const purchasedRes = await fetch('http://localhost:8080/api/market/purchased', {
+            const purchasedRes = await fetch(`${API_BASE_URL}/api/market/purchased`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (purchasedRes.ok) {
@@ -108,7 +109,7 @@ export const useMarket = () => {
             // 2. Fetch My Selling Items
             let currentSellingItems: any[] = [];
 
-            const sellingRes = await fetch('http://localhost:8080/api/market/my-items', {
+            const sellingRes = await fetch(`${API_BASE_URL}/api/market/my-items`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (sellingRes.ok) {
@@ -135,7 +136,7 @@ export const useMarket = () => {
             }
 
             // 2.5 Fetch Wishlist
-            const wishRes = await fetch('http://localhost:8080/api/market/wishlist', {
+            const wishRes = await fetch(`${API_BASE_URL}/api/market/wishlist`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (wishRes.ok) {
@@ -193,7 +194,7 @@ export const useMarket = () => {
                 query.append('sellerId', targetSellerId);
             }
 
-            const marketRes = await fetch(`http://localhost:8080/api/market/items?${query.toString()}`, {
+            const marketRes = await fetch(`${API_BASE_URL}/api/market/items?${query.toString()}`, {
                 headers: token ? { 'Authorization': `Bearer ${token}` } : {}
             });
             if (marketRes.ok) {
@@ -306,7 +307,7 @@ export const useMarket = () => {
             const token = localStorage.getItem('accessToken');
             if (!token) return;
             try {
-                const res = await fetch('http://localhost:8080/api/market/wishlist/ids', {
+                const res = await fetch(`${API_BASE_URL}/api/market/wishlist/ids`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -357,7 +358,7 @@ export const useMarket = () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:8080/api/market/wishlist/${itemId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/market/wishlist/${itemId}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -391,7 +392,7 @@ export const useMarket = () => {
                 referenceId: item.originalId?.toString() || item.id?.toString()
             };
 
-            const response = await fetch('http://localhost:8080/api/market/items', {
+            const response = await fetch(`${API_BASE_URL}/api/market/items`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -434,7 +435,7 @@ export const useMarket = () => {
 
             alert(`DEBUG OUT: Sending Update to Backend\nItemID: ${itemId}\nPayload Image: ${itemData.imageUrl}`);
 
-            const response = await fetch(`http://localhost:8080/api/market/items/${itemId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/market/items/${itemId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -445,7 +446,7 @@ export const useMarket = () => {
 
             if (response.ok) {
                 // Reload selling items
-                const res = await fetch('http://localhost:8080/api/market/my-items', {
+                const res = await fetch(`${API_BASE_URL}/api/market/my-items`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -489,7 +490,7 @@ export const useMarket = () => {
             const token = localStorage.getItem('accessToken');
             if (!token) return;
             try {
-                const response = await fetch(`http://localhost:8080/api/market/cancel/${itemId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/market/cancel/${itemId}`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -511,9 +512,9 @@ export const useMarket = () => {
         if (!token) return false;
 
         try {
-            let url = `http://localhost:8080/api/market/buy/${itemId}`;
+            let url = `${API_BASE_URL}/api/market/buy/${itemId}`;
             if (isNaN(Number(itemId))) {
-                url = `http://localhost:8080/api/market/buy/ref/${itemId}`;
+                url = `${API_BASE_URL}/api/market/buy/ref/${itemId}`;
             }
 
             const response = await fetch(url, {
@@ -547,7 +548,7 @@ export const useMarket = () => {
         const token = localStorage.getItem('accessToken');
         if (!token) return null;
         try {
-            const res = await fetch(`http://localhost:8080/api/market/items/${itemId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/market/items/${itemId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {

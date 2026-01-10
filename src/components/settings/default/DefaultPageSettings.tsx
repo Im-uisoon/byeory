@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from "@/config";
 import { Home, FileText, CheckSquare, Users, Check, ArrowLeft, X } from 'lucide-react';
 
 interface DefaultPageSettingsProps {
@@ -33,7 +34,7 @@ export default function DefaultPageSettings({ onBack, onClose }: DefaultPageSett
         const token = localStorage.getItem('accessToken');
         if (token) {
             try {
-                await fetch('http://localhost:8080/api/setting/page', {
+                await fetch(`${API_BASE_URL}/api/setting/page`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

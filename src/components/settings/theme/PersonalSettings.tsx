@@ -2,6 +2,7 @@ import {
     ArrowLeft, Check, X, Type, Star, PenTool, RotateCcw, ChevronDown, Palette,
     ArrowUp, ArrowUpRight, ArrowRight, ArrowDownRight, ArrowDown, ArrowDownLeft, ArrowLeft as ArrowLeftIcon, ArrowUpLeft, Image as ImageIcon
 } from 'lucide-react';
+import { API_BASE_URL } from "@/config";
 import { useState, useRef, useEffect } from 'react';
 
 interface PersonalSettingsProps {
@@ -166,7 +167,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
         };
 
         try {
-            await fetch('http://localhost:8080/api/setting/theme', {
+            await fetch(`${API_BASE_URL}/api/setting/theme`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from "@/config";
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, CheckCircle, Loader2, Send, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -28,7 +29,7 @@ function JoinPage() {
 
         setIsSending(true);
         try {
-            const res = await fetch('http://localhost:8080/auth/email/send', {
+            const res = await fetch(`${API_BASE_URL}/auth/email/send`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -41,7 +42,9 @@ function JoinPage() {
                 setIsVerified(false);
                 alert("인증번호가 전송되었습니다. 이메일을 확인해주세요.");
             } else {
-                alert("인증번호 전송에 실패했습니다. 다시 시도해주세요.");
+                const errorText = await res.text();
+                console.error("Verification failed:", res.status, errorText);
+                alert(`인증번호 전송 실패: ${errorText || "다시 시도해주세요."}`);
             }
         } catch (error) {
             console.error("Email send error:", error);
@@ -57,7 +60,7 @@ function JoinPage() {
             return;
         }
         try {
-            const res = await fetch('http://localhost:8080/auth/email/check', {
+            const res = await fetch(`${API_BASE_URL}/auth/email/check`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, authNum: verificationCode })

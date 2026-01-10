@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from "@/config";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { HeartCrack, ArrowLeft, ShieldAlert } from 'lucide-react';
@@ -48,7 +49,7 @@ const GetOutPage: React.FC = () => {
     const executeDelete = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch('http://localhost:8080/api/user', {
+            const response = await fetch(`${API_BASE_URL}/api/user`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

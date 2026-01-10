@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_BASE_URL } from "@/config";
 import { useNavigate } from "react-router-dom";
 import {
   Camera,
@@ -144,7 +145,7 @@ const InitialProfileSetup: React.FC = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/user/profile", {
+      const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -314,9 +315,8 @@ const InitialProfileSetup: React.FC = () => {
                 style={{
                   width: "calc((100% - 8px) / 3)",
                   left: "4px",
-                  transform: `translateX(${
-                    ["male", "female", "unspecified"].indexOf(gender) * 100
-                  }%)`,
+                  transform: `translateX(${["male", "female", "unspecified"].indexOf(gender) * 100
+                    }%)`,
                 }}
               />
               {["male", "female", "unspecified"].map((g) => (
@@ -324,11 +324,10 @@ const InitialProfileSetup: React.FC = () => {
                   key={g}
                   type="button"
                   onClick={() => setGender(g)}
-                  className={`relative z-10 flex-1 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                    gender === g
+                  className={`relative z-10 flex-1 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${gender === g
                       ? "text-[var(--btn-text)]"
                       : "theme-text-secondary hover:theme-text-primary"
-                  }`}
+                    }`}
                 >
                   {g === "male" ? "남성" : g === "female" ? "여성" : "비공개"}
                 </button>

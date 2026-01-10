@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from "@/config";
 import Navigation from '../../components/Header/Navigation';
 import { DailyView } from '../../components/Todo/Daily';
 import { WeeklyView } from '../../components/Todo/Weekly';
@@ -32,7 +33,7 @@ const TodoPage: React.FC = () => {
             const token = localStorage.getItem('accessToken');
             const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-            const response = await fetch(`http://localhost:8080/api/posts/summary?year=${year}&month=${month}`, {
+            const response = await fetch(`${API_BASE_URL}/api/posts/summary?year=${year}&month=${month}`, {
                 headers
             });
 

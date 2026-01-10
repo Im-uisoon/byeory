@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from "@/config";
 import { X, Heart, ShoppingBag, Star, User, Trash2 } from 'lucide-react';
 import { useCredits } from '../../context/CreditContext';
 import type { MarketItem } from '../../data/mockMarketItems';
@@ -89,7 +90,7 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const res = await fetch(`http://localhost:8080/api/market/reviews/${targetId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/market/reviews/${targetId}`, {
                 headers
             });
             if (res.ok) {
@@ -126,7 +127,7 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
         setIsSubmitting(true);
         try {
-            const res = await fetch('http://localhost:8080/api/market/reviews', {
+            const res = await fetch(`${API_BASE_URL}/api/market/reviews`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -172,7 +173,7 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                 if (!token) return;
 
                 try {
-                    const res = await fetch(`http://localhost:8080/api/market/reviews/${reviewId}`, {
+                    const res = await fetch(`${API_BASE_URL}/api/market/reviews/${reviewId}`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${token}`

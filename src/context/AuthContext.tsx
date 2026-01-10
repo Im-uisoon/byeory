@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import ForcedPinInputModal from '../components/Security/ForcedPinInputModal';
+import { API_BASE_URL } from "@/config";
 
 interface AuthContextType {
     isLoggedIn: boolean;
@@ -38,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const triggerPinFlow = async (token: string) => {
         try {
             // 1. Check status first to know if locked
-            const statusRes = await fetch('http://localhost:8080/api/pin/status', {
+            const statusRes = await fetch(`${API_BASE_URL}/api/pin/status`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -49,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             // 2. Check if PIN is set
-            const checkRes = await fetch('http://localhost:8080/api/pin/check', {
+            const checkRes = await fetch(`${API_BASE_URL}/api/pin/check`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -115,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!token) return false;
 
         try {
-            const response = await fetch('http://localhost:8080/api/pin/check', {
+            const response = await fetch(`${API_BASE_URL}/api/pin/check`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -179,7 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 providerId
             };
 
-            const response = await fetch('http://localhost:8080/auth/social-login', {
+            const response = await fetch(`${API_BASE_URL}/auth/social-login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -207,7 +208,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                 // Verify profile status
                 try {
-                    const profileRes = await fetch('http://localhost:8080/api/user/profile', {
+                    const profileRes = await fetch(`${API_BASE_URL}/api/user/profile`, {
                         headers: { 'Authorization': `Bearer ${data.accessToken}` }
                     });
                     if (profileRes.ok) {
@@ -244,7 +245,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const localLogin = async (email: string, password: string): Promise<boolean> => {
         // ... (existing logic) ...
         try {
-            const response = await fetch('http://localhost:8080/auth/login', {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -262,7 +263,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                     // Verify profile status
                     try {
-                        const profileRes = await fetch('http://localhost:8080/api/user/profile', {
+                        const profileRes = await fetch(`${API_BASE_URL}/api/user/profile`, {
                             headers: { 'Authorization': `Bearer ${data.accessToken}` }
                         });
                         if (profileRes.ok) {
@@ -315,7 +316,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 provider: "LOCAL"
             };
 
-            const response = await fetch('http://localhost:8080/auth/join', {
+            const response = await fetch(`${API_BASE_URL}/auth/join`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -370,7 +371,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!token) return "로그인이 필요합니다.";
 
         try {
-            const response = await fetch('http://localhost:8080/api/pin/verify', {
+            const response = await fetch(`${API_BASE_URL}/api/pin/verify`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -388,7 +389,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     return null;
                 } else {
                     // Fetch status to get fail count and lock status
-                    const statusRes = await fetch('http://localhost:8080/api/pin/status', {
+                    const statusRes = await fetch(`${API_BASE_URL}/api/pin/status`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
 
@@ -404,7 +405,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
             } else {
                 // If 400 or other error, check if it's because it's locked
-                const statusRes = await fetch('http://localhost:8080/api/pin/status', {
+                const statusRes = await fetch(`${API_BASE_URL}/api/pin/status`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (statusRes.ok) {
@@ -427,7 +428,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!token) return "로그인이 필요합니다.";
 
         try {
-            const response = await fetch('http://localhost:8080/api/pin/unlock-request', {
+            const response = await fetch(`${API_BASE_URL}/api/pin/unlock-request`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -450,7 +451,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!token) return "로그인이 필요합니다.";
 
         try {
-            const response = await fetch('http://localhost:8080/api/pin/unlock', {
+            const response = await fetch(`${API_BASE_URL}/api/pin/unlock`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

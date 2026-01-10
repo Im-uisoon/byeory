@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import type {WidgetConfig, WidgetDefinition} from "./type.ts";
-import {WIDGET_COMPONENT_MAP} from "./componentMap.ts";
+import type { WidgetConfig, WidgetDefinition } from "./type.ts";
+import { WIDGET_COMPONENT_MAP } from "./componentMap.ts";
 
+import { API_BASE_URL } from "@/config";
 // 🌟 [변경 1] 백엔드 주소 상수 정의 (다른 파일에 있다면 import 해서 쓰셔도 됩니다)
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = API_BASE_URL;
 const getAuthHeaders = () => {
     const token = localStorage.getItem('accessToken');
     return {

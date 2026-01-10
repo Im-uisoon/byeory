@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from "@/config";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../../context/AuthContext';
 import { User, Palette } from 'lucide-react';
@@ -18,7 +19,7 @@ export function WelcomeWidget({ gridSize }: { gridSize?: { w: number; h: number 
                 const token = localStorage.getItem('accessToken');
                 if (!token) return;
 
-                const response = await fetch('http://localhost:8080/api/user/profile', {
+                const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 

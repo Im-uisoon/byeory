@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Navigation from '../../components/Header/Navigation';
+import { API_BASE_URL } from "@/config";
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock, LogOut, BarChart3, Calendar, Shield, Image as ImageIcon, Clock, ChevronDown, RefreshCw, Heart } from "lucide-react";
@@ -72,7 +73,7 @@ function ProfilePage() {
             if (!token) return;
 
             try {
-                const response = await fetch('http://localhost:8080/api/persona/settings', {
+                const response = await fetch(`${API_BASE_URL}/api/persona/settings`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -117,7 +118,7 @@ function ProfilePage() {
 
         setIsSavingTags(true);
         try {
-            const response = await fetch('http://localhost:8080/api/persona/settings', {
+            const response = await fetch(`${API_BASE_URL}/api/persona/settings`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -154,7 +155,7 @@ function ProfilePage() {
             }
 
             try {
-                const response = await fetch('http://localhost:8080/api/user/profile', {
+                const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -222,7 +223,7 @@ function ProfilePage() {
         try {
             if (pinModalConfig.mode === 'REGISTER') {
                 // Register logic
-                const response = await fetch('http://localhost:8080/api/pin/register', {
+                const response = await fetch(`${API_BASE_URL}/api/pin/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -241,7 +242,7 @@ function ProfilePage() {
 
             } else if (pinModalConfig.mode === 'VERIFY_OLD') {
                 // Verify old PIN
-                const response = await fetch('http://localhost:8080/api/pin/verify', {
+                const response = await fetch(`${API_BASE_URL}/api/pin/verify`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -257,7 +258,7 @@ function ProfilePage() {
                     return null;
                 } else {
                     // Fetch status for count
-                    const statusRes = await fetch('http://localhost:8080/api/pin/status', {
+                    const statusRes = await fetch(`${API_BASE_URL}/api/pin/status`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (statusRes.ok) {
@@ -281,7 +282,7 @@ function ProfilePage() {
                 // Compare with temp
                 if (pin === tempNewPin) {
                     // Match -> Register (overwrite)
-                    const response = await fetch('http://localhost:8080/api/pin/register', {
+                    const response = await fetch(`${API_BASE_URL}/api/pin/register`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -302,7 +303,7 @@ function ProfilePage() {
                 }
             } else if (pinModalConfig.mode === 'DISABLE') {
                 // 1. Verify first
-                const verifyResponse = await fetch('http://localhost:8080/api/pin/verify', {
+                const verifyResponse = await fetch(`${API_BASE_URL}/api/pin/verify`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -314,7 +315,7 @@ function ProfilePage() {
                 const isCorrect = await verifyResponse.json();
                 if (isCorrect === true) {
                     // 2. Delete if correct
-                    const deleteResponse = await fetch('http://localhost:8080/api/pin', {
+                    const deleteResponse = await fetch(`${API_BASE_URL}/api/pin`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -330,7 +331,7 @@ function ProfilePage() {
                     }
                 } else {
                     // Fetch status for count
-                    const statusRes = await fetch('http://localhost:8080/api/pin/status', {
+                    const statusRes = await fetch(`${API_BASE_URL}/api/pin/status`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (statusRes.ok) {
