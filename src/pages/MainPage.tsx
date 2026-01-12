@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import FloatingSettingsPanel from '../components/dashboard/components/FloatingSettingsPanel';
 import Navigation from '../components/header/Navigation';
 import { useMenu } from '../components/settings/menu/MenuSettings';
 import { WidgetGallery } from '../components/settings/widgets/WidgetGallery';
@@ -186,6 +187,8 @@ const MainPage: React.FC = () => {
                     />
 
                     {/* Dashboard Grid */}
+
+
                     <DashboardGrid
                         isMobile={isMobile}
                         isMenuEditMode={isMenuEditMode}
@@ -206,6 +209,17 @@ const MainPage: React.FC = () => {
                         handleUpdateWidgetData={handleUpdateWidgetData}
                     />
                 </div>
+
+                {/* Floating Settings Panel (Right Side) */}
+                <FloatingSettingsPanel
+                    isWidgetEditMode={isWidgetEditMode}
+                    setIsWidgetEditMode={setIsWidgetEditMode}
+                    setIsCatalogOpen={setIsCatalogOpen}
+                    setIsBuilderOpen={setIsBuilderOpen}
+                    setIsArrangeConfirmOpen={setIsArrangeConfirmOpen}
+                    setIsPresetManagerOpen={setIsPresetManagerOpen}
+                    resetWidgets={() => setIsResetConfirmOpen(true)}
+                />
 
                 {/* --- Modals Section --- */}
 

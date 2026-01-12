@@ -48,8 +48,8 @@ export default function DefaultPageSettings({ onBack, onClose }: DefaultPageSett
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-4 shrink-0">
                 <div className="flex items-center gap-3">
                     {onBack && (
                         <button
@@ -68,44 +68,48 @@ export default function DefaultPageSettings({ onBack, onClose }: DefaultPageSett
                 )}
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                {pages.map((page) => {
-                    const isSelected = selectedPath === page.path;
-                    return (
-                        <button
-                            key={page.id}
-                            onClick={() => handleSelect(page.path)}
-                            className={`
-                                relative flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 gap-2
-                                ${isSelected
-                                    ? 'border-[color:var(--text-primary)] theme-bg-card shadow-md scale-[1.02]'
-                                    : 'theme-border theme-bg-card hover:border-[color:var(--text-secondary)] hover:bg-black/5'
-                                }
-                            `}
-                        >
-                            <div className={`
-                                p-3 rounded-full transition-colors
-                                ${isSelected ? 'theme-btn' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}
-                            `}>
-                                <page.icon size={24} />
-                            </div>
-                            <span className={`font-medium ${isSelected ? 'theme-text-primary font-bold' : 'theme-text-secondary'}`}>
-                                {page.name}
-                            </span>
+            <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0 pr-1">
+                <div className="space-y-4 pb-1">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                        {pages.map((page) => {
+                            const isSelected = selectedPath === page.path;
+                            return (
+                                <button
+                                    key={page.id}
+                                    onClick={() => handleSelect(page.path)}
+                                    className={`
+                                        relative flex flex-col items-center justify-center p-4 py-8 rounded-xl border-2 transition-all duration-200 gap-2
+                                        ${isSelected
+                                            ? 'border-[color:var(--text-primary)] theme-bg-card shadow-md scale-[1.02]'
+                                            : 'theme-border theme-bg-card hover:border-[color:var(--text-secondary)] hover:bg-black/5'
+                                        }
+                                    `}
+                                >
+                                    <div className={`
+                                        p-3 rounded-full transition-colors
+                                        ${isSelected ? 'theme-btn' : 'theme-bg-card-secondary theme-text-secondary'}
+                                    `}>
+                                        <page.icon size={24} />
+                                    </div>
+                                    <span className={`font-medium ${isSelected ? 'theme-text-primary font-bold' : 'theme-text-secondary'}`}>
+                                        {page.name}
+                                    </span>
 
-                            {isSelected && (
-                                <div className="absolute top-3 right-3 theme-text-primary">
-                                    <Check size={20} />
-                                </div>
-                            )}
-                        </button>
-                    );
-                })}
+                                    {isSelected && (
+                                        <div className="absolute top-3 right-3 theme-text-primary">
+                                            <Check size={20} />
+                                        </div>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <p className="text-sm theme-text-secondary text-center">
+                        선택한 페이지는 로고를 클릭하거나 사이트에 처음 접속할 때 표시됩니다.
+                    </p>
+                </div>
             </div>
-
-            <p className="text-sm theme-text-secondary text-center mt-6">
-                선택한 페이지는 로고를 클릭하거나 사이트에 처음 접속할 때 표시됩니다.
-            </p>
         </div>
     );
 }

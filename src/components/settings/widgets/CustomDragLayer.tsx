@@ -34,7 +34,7 @@ export const CustomDragLayer = () => {
         isDragging: monitor.isDragging(),
     }));
 
-    if (!isDragging) {
+    if (!isDragging || itemType === 'MENU_SORT_ITEM') {
         return null;
     }
 

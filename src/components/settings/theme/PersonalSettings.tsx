@@ -238,7 +238,9 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
         if (manualBgImage) {
             document.documentElement.style.setProperty('--manual-gradient', `url(${manualBgImage})`);
             document.documentElement.style.setProperty('--manual-bg-intensity', '0');
-            localStorage.setItem('manualBgImage', manualBgImage);
+            try {
+                localStorage.setItem('manualBgImage', manualBgImage);
+            } catch (e) { /* Ignore quota error during preview apply */ }
 
             document.documentElement.style.setProperty('--manual-bg-size', manualBgSize === 'repeat' ? 'auto' : manualBgSize);
             document.documentElement.style.setProperty('--manual-bg-repeat', manualBgSize === 'repeat' ? 'repeat' : 'no-repeat');
@@ -270,18 +272,22 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
         document.documentElement.style.setProperty('--manual-btn-text', manualBtnTextColor);
 
         // Save to localStorage
-        localStorage.setItem('manualTextColor', manualTextColor);
-        localStorage.setItem('manualTextIntensity', manualTextIntensity.toString());
-        localStorage.setItem('manualIsGradient', isGradient.toString());
-        localStorage.setItem('manualBgColor', manualBgColor);
-        localStorage.setItem('manualBgIntensity', manualBgIntensity.toString());
-        localStorage.setItem('manualGradientDirection', gradientDirection);
-        localStorage.setItem('manualGradientStartColor', gradientStartColor);
-        localStorage.setItem('manualGradientEndColor', gradientEndColor);
-        localStorage.setItem('manualBtnColor', manualBtnColor);
-        localStorage.setItem('manualBtnTextColor', manualBtnTextColor);
-        localStorage.setItem('manualBgImage', manualBgImage);
-        localStorage.setItem('manualBgSize', manualBgSize);
+        try {
+            localStorage.setItem('manualTextColor', manualTextColor);
+            localStorage.setItem('manualTextIntensity', manualTextIntensity.toString());
+            localStorage.setItem('manualIsGradient', isGradient.toString());
+            localStorage.setItem('manualBgColor', manualBgColor);
+            localStorage.setItem('manualBgIntensity', manualBgIntensity.toString());
+            localStorage.setItem('manualGradientDirection', gradientDirection);
+            localStorage.setItem('manualGradientStartColor', gradientStartColor);
+            localStorage.setItem('manualGradientEndColor', gradientEndColor);
+            localStorage.setItem('manualBtnColor', manualBtnColor);
+            localStorage.setItem('manualBtnTextColor', manualBtnTextColor);
+            localStorage.setItem('manualBgImage', manualBgImage);
+            localStorage.setItem('manualBgSize', manualBgSize);
+        } catch (e) {
+            console.warn("인터넷 오류가 발생했습니다.");
+        }
 
         // Save to Backend
         const manualConfig = getManualConfig();
@@ -292,25 +298,16 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // 1. Check file size (limit to 3MB)
-            if (file.size > 3 * 1024 * 1024) {
-                alert('이미지 용량이 너무 큽니다. 3MB  이하의 이미지를 사용해주세요.\n(브라우저 저장소 제한으로 인해 고화질 이미지는 저장이 불가능할 수 있습니다.)');
+            // 1. Check file size (limit to 2.8MB for safety margin)
+            if (file.size > 2.8 * 1024 * 1024) {
+                alert('이미지 용량이 너무 큽니다. 안전한 처리를 위해 2.8MB 이하의 이미지를 사용해주세요.');
                 return;
             }
 
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64String = reader.result as string;
-                try {
-                    // Try saving to localStorage immediately to test quota
-                    localStorage.setItem('temp_test_storage', base64String);
-                    localStorage.removeItem('temp_test_storage');
-
-                    setManualBgImage(base64String);
-                } catch (error) {
-                    console.error('Storage quota exceeded', error);
-                    alert('브라우저 저장 공간이 부족하여 이미지를 저장할 수 없습니다.\n더 작은 용량의 이미지를 사용하거나, 브라우저 캐시를 정리해주세요.');
-                }
+                setManualBgImage(base64String);
             };
             reader.readAsDataURL(file);
         }
@@ -392,7 +389,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                     <div className="space-y-6">
                         {/* Preview Box */}
                         <div className="relative theme-bg-card-secondary rounded-xl p-8 min-h-[120px] flex flex-col justify-center transition-all duration-200"
-                            style={{ fontFamily: fontFamily, fontSize: `${fontSize}px` }}>
+                            style={{ fontFamily: fontFamily, fontSize: `${fontSize} px` }}>
                             <p className="theme-text-primary font-bold mb-2">다람쥐 헌 쳇바퀴에 타고파</p>
                             <p className="theme-text-secondary">The quick brown fox jumps over the lazy dog.</p>
                             {/* "미리보기" Label Positioned Bottom Right inside the box */}
@@ -410,7 +407,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     className="w-full flex items-center justify-between p-3 rounded-lg theme-border border theme-bg-card theme-text-primary hover:bg-black/5 transition-colors"
                                 >
                                     <span style={{ fontFamily: fontFamily }}>{getFontName(fontFamily)}</span>
-                                    <ChevronDown className={`w-4 h-4 transition-transform ${isFontDropdownOpen ? 'rotate-180' : ''}`} />
+                                    <ChevronDown className={`w - 4 h - 4 transition - transform ${isFontDropdownOpen ? 'rotate-180' : ''} `} />
                                 </button>
 
                                 {isFontDropdownOpen && (
@@ -423,9 +420,9 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                                     setIsFontDropdownOpen(false);
                                                 }}
                                                 className={`
-                                                    w-full flex items-center justify-between p-3 text-left hover:bg-black/5 transition-colors
+        w - full flex items - center justify - between p - 3 text - left hover: bg - black / 5 transition - colors
                                                     ${fontFamily === font.value ? 'bg-black/5 theme-text-primary font-bold' : 'theme-text-secondary'}
-                                                `}
+        `}
                                             >
                                                 <span style={{ fontFamily: font.value }}>{font.name}</span>
                                                 {fontFamily === font.value && <Check className="w-4 h-4 theme-text-primary" />}
@@ -488,15 +485,15 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     borderColor: currentTheme === theme.id ? 'var(--text-primary)' : 'var(--border-color)'
                                 }}
                                 className={`
-                                    relative flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all duration-200
-                                    theme-bg-card
+                                    relative flex flex - col items - center justify - center p - 3 rounded - xl border - 2 transition - all duration - 200
+        theme - bg - card
                                     ${currentTheme === theme.id ? 'bg-black/5' : 'hover:bg-black/5'}
-                                `}
+        `}
                             >
                                 {/* Preview Circle */}
-                                <div className={`w-10 h-10 rounded-full mb-2 shadow-inner ${theme.previewClass}`} />
+                                <div className={`w - 10 h - 10 rounded - full mb - 2 shadow - inner ${theme.previewClass} `} />
 
-                                <span className={`text-sm font-medium ${currentTheme === theme.id ? 'theme-text-primary' : 'theme-text-secondary'}`}>
+                                <span className={`text - sm font - medium ${currentTheme === theme.id ? 'theme-text-primary' : 'theme-text-secondary'} `}>
                                     {theme.name}
                                 </span>
 
@@ -516,28 +513,28 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                         <div className="flex p-1 theme-bg-card-secondary rounded-lg mb-4">
                             <button
                                 onClick={() => setManualSubTab('text')}
-                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${manualSubTab === 'text'
+                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all ${manualSubTab === 'text'
                                     ? 'theme-bg-card theme-text-primary shadow-sm'
                                     : 'theme-text-secondary hover:bg-black/5'
-                                    }`}
+                                    } `}
                             >
                                 Text
                             </button>
                             <button
                                 onClick={() => setManualSubTab('colors')}
-                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${manualSubTab === 'colors'
+                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all ${manualSubTab === 'colors'
                                     ? 'theme-bg-card theme-text-primary shadow-sm'
                                     : 'theme-text-secondary hover:bg-black/5'
-                                    }`}
+                                    } `}
                             >
                                 Colors & Buttons
                             </button>
                             <button
                                 onClick={() => setManualSubTab('image')}
-                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${manualSubTab === 'image'
+                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all ${manualSubTab === 'image'
                                     ? 'theme-bg-card theme-text-primary shadow-sm'
                                     : 'theme-text-secondary hover:bg-black/5'
-                                    }`}
+                                    } `}
                             >
                                 Image
                             </button>
@@ -551,7 +548,9 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     className="relative rounded-xl p-8 min-h-[120px] flex flex-col justify-center transition-all duration-200 shadow-inner theme-bg-card-secondary"
                                 >
                                     <p className="font-bold mb-2 text-xl" style={{
-                                        color: `rgba(${parseInt(manualTextColor.slice(1, 3), 16)}, ${parseInt(manualTextColor.slice(3, 5), 16)}, ${parseInt(manualTextColor.slice(5, 7), 16)}, ${manualTextIntensity / 100})`
+                                        color: `rgba(${parseInt(manualTextColor.slice(1, 3), 16)
+                                            }, ${parseInt(manualTextColor.slice(3, 5), 16)
+                                            }, ${parseInt(manualTextColor.slice(5, 7), 16)}, ${manualTextIntensity / 100})`
                                     }}>
                                         다람쥐 헌 쳇바퀴에 타고파
                                     </p>
@@ -596,7 +595,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     className="relative rounded-xl p-8 min-h-[120px] flex flex-col justify-between transition-all duration-200 shadow-inner"
                                     style={{
                                         background: isGradient
-                                            ? `linear-gradient(${gradientDirection}, ${gradientStartColor}, ${gradientEndColor})`
+                                            ? `linear - gradient(${gradientDirection}, ${gradientStartColor}, ${gradientEndColor})`
                                             : `rgba(${parseInt(manualBgColor.slice(1, 3), 16)}, ${parseInt(manualBgColor.slice(3, 5), 16)}, ${parseInt(manualBgColor.slice(5, 7), 16)}, ${manualBgIntensity / 100})`,
                                         borderColor: isGradient ? gradientEndColor : manualBgColor
                                     }}
@@ -629,15 +628,15 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     <button
                                         onClick={() => setIsGradient(!isGradient)}
                                         className={`
-                                            relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none
+                                            relative inline - flex h - 6 w - 11 items - center rounded - full transition - colors focus: outline - none
                                             ${isGradient ? 'bg-blue-600' : 'bg-gray-200'}
-                                        `}
+`}
                                     >
                                         <span
                                             className={`
-                                                inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+inline - block h - 4 w - 4 transform rounded - full bg - white transition - transform
                                                 ${isGradient ? 'translate-x-6' : 'translate-x-1'}
-                                            `}
+`}
                                         />
                                     </button>
                                 </div>
@@ -680,11 +679,12 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                                         key={dir.value}
                                                         onClick={() => setGradientDirection(dir.value)}
                                                         className={`
-                                                            flex items-center justify-center p-2 rounded-lg border transition-all
+                                                            flex items - center justify - center p - 2 rounded - lg border transition - all
                                                             ${gradientDirection === dir.value
                                                                 ? 'theme-bg-card theme-border border-blue-500 text-blue-500 shadow-sm'
-                                                                : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'}
-                                                        `}
+                                                                : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'
+                                                            }
+`}
                                                     >
                                                         <dir.icon className="w-5 h-5" />
                                                     </button>
@@ -793,19 +793,19 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                                 <div className="flex gap-4 px-2">
                                                     <button
                                                         onClick={() => setManualBgSize('cover')}
-                                                        className={`flex-1 py-3 text-sm font-medium rounded-xl border transition-all ${manualBgSize === 'cover'
+                                                        className={`flex - 1 py - 3 text - sm font - medium rounded - xl border transition - all ${manualBgSize === 'cover'
                                                             ? 'theme-bg-card theme-border border-blue-500 text-blue-500 ring-2 ring-blue-500 ring-offset-2'
                                                             : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'
-                                                            }`}
+                                                            } `}
                                                     >
                                                         화면 채우기 (Cover)
                                                     </button>
                                                     <button
                                                         onClick={() => setManualBgSize('repeat')}
-                                                        className={`flex-1 py-3 text-sm font-medium rounded-xl border transition-all ${manualBgSize === 'repeat'
+                                                        className={`flex - 1 py - 3 text - sm font - medium rounded - xl border transition - all ${manualBgSize === 'repeat'
                                                             ? 'theme-bg-card theme-border border-blue-500 text-blue-500 ring-2 ring-blue-500 ring-offset-2'
                                                             : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'
-                                                            }`}
+                                                            } `}
                                                     >
                                                         반복 (Repeat)
                                                     </button>
@@ -837,6 +837,6 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

@@ -3,17 +3,22 @@ import { useState, useEffect } from 'react';
 import PersonalSettings from './PersonalSettings';
 
 interface ThemeSettingsProps {
-    onBack: () => void;
+    onBack?: () => void;
     onClose: () => void;
+    onExpand?: (expanded: boolean) => void;
 }
 
 type ThemeMode = 'default' | 'light' | 'dark' | 'custom' | 'manual' | string;
 
-export default function ThemeSettings({ onBack, onClose }: ThemeSettingsProps) {
+export default function ThemeSettings({ onBack, onClose, onExpand }: ThemeSettingsProps) {
     const [selectedTheme, setSelectedTheme] = useState<ThemeMode>(() => {
         return (localStorage.getItem('theme') as ThemeMode) || 'default';
     });
     const [showPersonalSettings, setShowPersonalSettings] = useState(false);
+
+    useEffect(() => {
+        onExpand?.(showPersonalSettings);
+    }, [showPersonalSettings, onExpand]);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', selectedTheme);
@@ -70,7 +75,7 @@ export default function ThemeSettings({ onBack, onClose }: ThemeSettingsProps) {
     return (
         <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4 shrink-0">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onBack}
@@ -86,62 +91,64 @@ export default function ThemeSettings({ onBack, onClose }: ThemeSettingsProps) {
             </div>
 
             {/* Theme Grid */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                {themes.map((theme) => {
-                    // Check if this is the "Personal Settings" button
-                    const isPersonalBtn = theme.id === 'personal';
-                    // Check if the current selected theme belongs to "Personal Settings" category
-                    // (custom or any custom-* themes, or 'manual' are considered personal themes)
-                    const isPersonalActive = isPersonalBtn && (selectedTheme === 'custom' || selectedTheme.startsWith('custom-') || selectedTheme === 'manual');
-                    // Check if this specific theme button is active (for default, light, dark)
-                    const isActive = theme.id === selectedTheme || isPersonalActive;
+            <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0 pr-1">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 pb-1">
+                    {themes.map((theme) => {
+                        // Check if this is the "Personal Settings" button
+                        const isPersonalBtn = theme.id === 'personal';
+                        // Check if the current selected theme belongs to "Personal Settings" category
+                        // (custom or any custom-* themes, or 'manual' are considered personal themes)
+                        const isPersonalActive = isPersonalBtn && (selectedTheme === 'custom' || selectedTheme.startsWith('custom-') || selectedTheme === 'manual');
+                        // Check if this specific theme button is active (for default, light, dark)
+                        const isActive = theme.id === selectedTheme || isPersonalActive;
 
-                    return (
-                        <button
-                            key={theme.id}
-                            onClick={() => {
-                                if (isPersonalBtn) {
-                                    setShowPersonalSettings(true);
-                                } else {
-                                    setSelectedTheme(theme.id as ThemeMode);
-                                }
-                            }}
-                            style={{
-                                borderColor: isActive ? 'var(--text-primary)' : 'var(--border-color)'
-                            }}
-                            className={`
-                                relative flex flex-col items-start p-4 bg-white rounded-xl border-2 transition-all duration-200
-                                theme-bg-card
-                                ${isActive
-                                    ? 'bg-black/5'
-                                    : 'hover:bg-black/5'
-                                }
-                            `}
-                        >
-                            <div className={`
-                                p-3 rounded-lg mb-3
-                                ${isActive ? 'bg-black/10 theme-text-primary' : 'bg-black/5 theme-text-secondary'}
-                            `}>
-                                <theme.icon className="w-6 h-6" />
-                            </div>
+                        return (
+                            <button
+                                key={theme.id}
+                                onClick={() => {
+                                    if (isPersonalBtn) {
+                                        setShowPersonalSettings(true);
+                                    } else {
+                                        setSelectedTheme(theme.id as ThemeMode);
+                                    }
+                                }}
+                                style={{
+                                    borderColor: isActive ? 'var(--text-primary)' : 'var(--border-color)'
+                                }}
+                                className={`
+                                    relative flex flex-col items-start p-3 bg-white rounded-xl border-2 transition-all duration-200
+                                    theme-bg-card
+                                    ${isActive
+                                        ? 'bg-black/5'
+                                        : 'hover:bg-black/5'
+                                    }
+                                `}
+                            >
+                                <div className={`
+                                    p-2 rounded-lg mb-2
+                                    ${isActive ? 'bg-black/10 theme-text-primary' : 'bg-black/5 theme-text-secondary'}
+                                `}>
+                                    <theme.icon className="w-6 h-6" />
+                                </div>
 
-                            <div className="flex items-center justify-between w-full mb-1">
-                                <span className={`font-bold text-base sm:text-lg whitespace-nowrap ${isActive ? 'theme-text-primary' : 'theme-text-primary'}`}>
-                                    {theme.name}
-                                </span>
-                                {isActive && (
-                                    <div className="theme-btn rounded-full p-1 ml-1 flex-shrink-0">
-                                        {isPersonalBtn ? <SettingsIcon className="w-3 h-3 text-white" /> : <Check className="w-3 h-3 text-white" />}
-                                    </div>
-                                )}
-                            </div>
+                                <div className="flex items-center justify-between w-full mb-1">
+                                    <span className={`font-bold text-base whitespace-nowrap ${isActive ? 'theme-text-primary' : 'theme-text-primary'}`}>
+                                        {theme.name}
+                                    </span>
+                                    {isActive && (
+                                        <div className="theme-btn rounded-full p-1 ml-1 flex-shrink-0">
+                                            {isPersonalBtn ? <SettingsIcon className="w-3 h-3 text-white" /> : <Check className="w-3 h-3 text-white" />}
+                                        </div>
+                                    )}
+                                </div>
 
-                            <p className="text-sm theme-text-secondary text-left break-keep leading-tight">
-                                {theme.description}
-                            </p>
-                        </button>
-                    );
-                })}
+                                <p className="text-sm theme-text-secondary text-left break-keep leading-tight">
+                                    {theme.description}
+                                </p>
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
