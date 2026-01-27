@@ -1,4 +1,5 @@
 import React, { useState, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import EditorToolbar from './EditorToolbar';
 
 interface Props {
@@ -8,11 +9,37 @@ interface Props {
     onUpdate: (id: string, type: 'block' | 'sticker' | 'floating' | 'floatingImage' | 'title', changes: any) => void;
     onDelete?: () => void;
     scale: number;
+    // ✨ Crop Props
+    onCropToggle?: () => void;
+    isCropping?: boolean;
 }
 
-const ToolbarOverlay: React.FC<Props> = ({ selectedId, selectedType, currentItem, onUpdate, onDelete, scale }) => {
+const ToolbarOverlay: React.FC<Props> = ({ selectedId, selectedType, currentItem, onUpdate, onDelete, scale, onCropToggle, isCropping }) => {
     const [position, setPosition] = useState<{ top: number, left: number } | null>(null);
+    const [toolbarWidth, setToolbarWidth] = useState(0);
+    const toolbarRef = React.useRef<HTMLDivElement>(null);
 
+    // 1. Observe Toolbar Width
+    useLayoutEffect(() => {
+        if (!toolbarRef.current) return;
+
+        const updateWidth = () => {
+            if (toolbarRef.current) {
+                setToolbarWidth(toolbarRef.current.offsetWidth);
+            }
+        };
+
+        // Initial measure
+        updateWidth();
+
+        const ro = new ResizeObserver(updateWidth);
+        ro.observe(toolbarRef.current);
+
+        return () => ro.disconnect();
+    }, []);
+
+
+    // 2. Calculate Position (Fixed Viewport Coordinates)
     useLayoutEffect(() => {
         const updatePosition = () => {
             if (!selectedId) return;
@@ -20,33 +47,48 @@ const ToolbarOverlay: React.FC<Props> = ({ selectedId, selectedType, currentItem
             const targetEl = document.getElementById(selectedId);
             if (!targetEl) return;
 
-            // We assume this overlay is rendered inside the Scaled Content Container (width: 800px)
-            // So we need the position relative to that container's offsetParent.
-            // But getting offsets can be tricky with transforms (scale).
-
-            // Safer approach: Get absolute client rects and subtract container's client rect.
-            // AND divide by scale.
-
-            // Find the closest relative parent (the Content Container) which should be the parent of this Overlay.
-            const containerEl = targetEl.closest('.selection-zone');
-            if (!containerEl) return;
-
             const targetRect = targetEl.getBoundingClientRect();
-            const containerRect = containerEl.getBoundingClientRect();
 
-            // Calculate Style Top/Left (relative to the container, unscaled coordinate space)
-            // Since the container has `transform: scale()`, the `clientRect` is the "visual" size on screen.
-            // The internal coordinate space is "original size" (800px width).
+            // Calculate Style Top/Left (Viewport relative since we use Portal + Fixed)
+            // ✨ Position BELOW the element by default
+            let top = targetRect.bottom + 10;
+            const centerLeft = targetRect.left + targetRect.width / 2;
 
-            const top = (targetRect.bottom - containerRect.top) / scale;
-            const centerLeft = (targetRect.left - containerRect.left + targetRect.width / 2) / scale;
+            // ✨ Viewport-Aware Clamping Logic
+            let finalLeft = centerLeft;
 
-            setPosition({ top: top + 10, left: centerLeft }); // +10 for gap
+            if (toolbarWidth > 0) {
+                const halfToolbar = toolbarWidth / 2;
+                const safeMargin = 10; // Margin from screen edges
+
+                // Screen boundaries
+                // Left edge of toolbar >= safeMargin
+                const minLeft = halfToolbar + safeMargin;
+
+                // Right edge of toolbar <= window.innerWidth - safeMargin
+                const maxLeft = window.innerWidth - safeMargin - halfToolbar;
+
+                // Apply Clamp
+                finalLeft = Math.max(minLeft, Math.min(centerLeft, maxLeft));
+            }
+
+            // Toggle to TOP if bottom is clipped (e.g. at bottom of screen)
+            const toolbarHeight = toolbarRef.current?.offsetHeight || 60;
+            if (top + toolbarHeight > window.innerHeight) {
+                top = targetRect.top - toolbarHeight - 10; // Position above with margin
+            }
+
+            setPosition(prev => {
+                // Check if changed significantly to avoid loops
+                if (prev && Math.abs(prev.top - top) < 1 && Math.abs(prev.left - finalLeft) < 1) {
+                    return prev;
+                }
+                return { top: top, left: finalLeft };
+            });
         };
 
         updatePosition();
 
-        // Optional: observe resize if needed.
         const resizeObserver = new ResizeObserver(updatePosition);
         const targetEl = document.getElementById(selectedId);
         if (targetEl) resizeObserver.observe(targetEl);
@@ -59,23 +101,29 @@ const ToolbarOverlay: React.FC<Props> = ({ selectedId, selectedType, currentItem
             window.removeEventListener('scroll', updatePosition, true);
             window.removeEventListener('resize', updatePosition);
         };
-    }, [selectedId, selectedType, scale]);
+    }, [selectedId, selectedType, scale, toolbarWidth]);
 
     if (!position || !selectedId) return null;
 
-    return (
+    // ✨ Render to Body using Portal
+    return createPortal(
         <div
+            ref={toolbarRef}
             style={{
-                position: 'absolute',
+                position: 'fixed', // ✨ Fixed relative to Viewport
                 top: position.top,
                 left: position.left,
                 transform: 'translateX(-50%)',
-                zIndex: 9999, // ✨ The Goal: Always on Top
+                zIndex: 99999, // ✨ Really Always on Top
                 width: 'max-content',
+                maxWidth: '94vw', // ✨ Limit width to screen (with margin)
                 pointerEvents: 'auto',
-                color: '#1f2937' // ✨ Reset text color to dark gray (prevent inheritance from paper)
+                color: '#1f2937',
+                whiteSpace: 'normal', // ✨ Allow wrapping
+                // Add shadow/border to ensure visibility against any background
+                filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))'
             }}
-            onMouseDown={(e) => e.stopPropagation()} // Prevent deselection when clicking toolbar
+            onMouseDown={(e) => e.stopPropagation()}
         >
             <EditorToolbar
                 selectedId={selectedId}
@@ -83,9 +131,12 @@ const ToolbarOverlay: React.FC<Props> = ({ selectedId, selectedType, currentItem
                 currentItem={currentItem}
                 onUpdate={onUpdate}
                 onDelete={onDelete}
-                positionMode="inline" // We use inline mode style, but positioned absolutely by the wrapper
+                positionMode="inline"
+                onCropToggle={onCropToggle}
+                isCropping={isCropping}
             />
-        </div>
+        </div>,
+        document.body
     );
 };
 

@@ -3,9 +3,7 @@ import { Zap } from 'lucide-react';
 import { WidgetWrapper } from '../Common';
 
 // --- 5. Battery Widget (Classic Simple Design)
-interface BatteryWidgetProps {
-    gridSize?: { w: number; h: number };
-}
+
 
 export const BatteryWidget = React.memo(function BatteryWidget() {
     const [level, setLevel] = useState(50);

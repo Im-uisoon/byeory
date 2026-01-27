@@ -1,29 +1,142 @@
-import React from 'react';
+// ... imports
+import React, { useState, useRef, useEffect } from 'react'; // Ensure React hooks are imported
+import axios from 'axios';
 import {
     // 카테고리 대표 아이콘
-    Type, Layout, Sparkles, Activity, PieChart, Wrench, GraduationCap, MousePointer2,
+    Type, Layout, Sparkles, Activity, PieChart, Wrench, GraduationCap, MousePointer2, ImageDown, // ✨ Added ImageDown
     // 블록 아이콘들
     Heading1, Quote, Minus, List, ListOrdered, CheckSquare, Sidebar as IconSidebar,
     Columns, AlignVerticalJustifyCenter, AlertCircle, Highlighter, EyeOff, Sigma,
     Play, ChevronsRight, MoreHorizontal, BarChart3, Radar,
     Grid3X3, PlusCircle, Star, Battery, Database, ArrowLeftRight,
-    Link, FileText, StickyNote, Search, Map
+    Link, FileText, StickyNote, Search, Map,
+    Plus, X // ✨ Added Plus, X for Freepik UI
 } from 'lucide-react';
 import type { BlockType } from '../types';
 import { BLOCK_COSTS } from '../constants';
 
-// 카테고리 타입 정의
-export type Category = 'text' | 'structure' | 'visual' | 'effect' | 'data' | 'util' | 'study' | 'interaction';
+// ... (Category type)
+export type Category = 'text' | 'structure' | 'visual' | 'effect' | 'data' | 'util' | 'study' | 'interaction' | 'freepik'; // ✨ Added freepik category
 
 interface Props {
     activeTab: Category;
     setActiveTab: (tab: Category) => void;
     onAddBlock: (type: BlockType) => void;
-    onAddDecoration?: (type: any) => void; // [NEW] Optional for now to avoid breaking other usages
+    onAddDecoration?: (type: any) => void;
     remainingCapacity: number;
 }
 
 const LeftSidebar: React.FC<Props> = ({ activeTab, setActiveTab, onAddBlock, onAddDecoration, remainingCapacity }) => {
+
+    // ✨ Freepik State
+    const [freepikQuery, setFreepikQuery] = useState('');
+    const [freepikResults, setFreepikResults] = useState<{ url: string; downloadUrl: string; id: string | number }[]>([]);
+    const [freepikFilter, setFreepikFilter] = useState<'all' | 'photo' | 'vector' | 'icon'>('all');
+    const [freepikPage, setFreepikPage] = useState(1);
+    const [isFreepikLoading, setIsFreepikLoading] = useState(false);
+    const freepikScrollRef = useRef<HTMLDivElement>(null);
+
+    // ✨ Freepik Search Handler (Copied & Adapted)
+    const handleFreepikSearch = async (targetPage: number = 1) => {
+        if (!freepikQuery.trim()) return;
+        setIsFreepikLoading(true);
+
+        const apiKey = import.meta.env.VITE_API_FREEPIK;
+        if (!apiKey) {
+            alert('Freepik API Key가 설정되지 않았습니다.');
+            setIsFreepikLoading(false);
+            return;
+        }
+
+        try {
+            const isIconSearch = freepikFilter === 'icon';
+            const endpoint = isIconSearch ? '/v1/icons' : '/v1/resources';
+
+            const params: Record<string, string> = {
+                limit: '24',
+                page: targetPage.toString(),
+                term: freepikQuery,
+            };
+
+            if (!isIconSearch) {
+                params.locale = 'ko-KR';
+                if (freepikFilter === 'photo') params['filters[content_type][photo]'] = '1';
+                else if (freepikFilter === 'vector') params['filters[content_type][vector]'] = '1';
+            }
+
+            // Using proxy path
+            const response = await axios.get<{ data: any[], meta: any }>(`/freepik-api${endpoint}`, {
+                params: params,
+                headers: {
+                    'Accept-Language': 'ko-KR',
+                    'x-freepik-api-key': apiKey
+                }
+            });
+
+            const data = response.data;
+            const resources = data.data;
+
+            if (!resources || resources.length === 0) {
+                if (targetPage === 1) alert('검색 결과가 없습니다.');
+                setIsFreepikLoading(false);
+                return;
+            }
+
+            const results = resources.map((item: any) => {
+                let previewUrl = '';
+                let downloadUrl = '';
+
+                if (isIconSearch) {
+                    previewUrl = item.thumbnails?.[1]?.url || item.thumbnails?.[0]?.url || item.image?.preview?.url || '';
+                    downloadUrl = item.image?.png?.url || item.image?.svg?.url || previewUrl;
+                } else {
+                    const sourceUrl = item.image?.source?.url;
+                    previewUrl = item.image?.preview?.url || item.preview?.url || sourceUrl || '';
+                    downloadUrl = sourceUrl || previewUrl;
+                }
+
+                return {
+                    id: item.id || `f-${Math.random()}`,
+                    url: previewUrl,
+                    downloadUrl: downloadUrl
+                };
+            }).filter((res: any) => !!res.url);
+
+            if (targetPage === 1) {
+                setFreepikResults(results);
+                setFreepikPage(1);
+                if (freepikScrollRef.current) freepikScrollRef.current.scrollTop = 0;
+            } else {
+                setFreepikResults(prev => [...prev, ...results]);
+                setFreepikPage(targetPage);
+            }
+        } catch (error) {
+            console.error("Freepik Search Error:", error);
+            const msg = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+            alert(msg);
+        } finally {
+            setIsFreepikLoading(false);
+        }
+    };
+
+    const handleFreepikScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+        if (scrollTop + clientHeight >= scrollHeight - 50) {
+            if (!isFreepikLoading && freepikResults.length > 0) {
+                handleFreepikSearch(freepikPage + 1);
+            }
+        }
+    };
+
+    const handleFreepikImageClick = async (item: { url: string; downloadUrl: string }) => {
+        // Add as image decoration
+        onAddDecoration?.({
+            type: 'image',
+            imageUrl: item.downloadUrl || item.url,
+            w: 150, // Default size for image
+            h: 150
+        });
+    };
 
 
     // 헬퍼: 버튼 렌더링
@@ -77,17 +190,8 @@ const LeftSidebar: React.FC<Props> = ({ activeTab, setActiveTab, onAddBlock, onA
                 };
 
                 if (decoType === 'blob') {
-                    // Default blob points (circle-ish)
-                    decoration.points = [
-                        { x: 50, y: 0 },
-                        { x: 85, y: 15 },
-                        { x: 100, y: 50 },
-                        { x: 85, y: 85 },
-                        { x: 50, y: 100 },
-                        { x: 15, y: 85 },
-                        { x: 0, y: 50 },
-                        { x: 15, y: 15 },
-                    ];
+                    // Default points will be handled by WidgetBuilder now, or we can pass undefined
+                    // But for safety, let's just pass basic props, WidgetBuilder handles generation if points missing for 'blob'
                 }
 
                 onAddDecoration?.(decoration);
@@ -125,6 +229,13 @@ const LeftSidebar: React.FC<Props> = ({ activeTab, setActiveTab, onAddBlock, onA
                     onClick={() => setActiveTab('visual')}
                     icon={<Sparkles size={20} />}
                     label="꾸미기"
+                />
+                {/* ✨ Freepik Tab */}
+                <TabButton
+                    active={activeTab === 'freepik'}
+                    onClick={() => setActiveTab('freepik')} // Need to update Category type
+                    icon={<ImageDown size={20} />}
+                    label="이미지"
                 />
                 <TabButton
                     active={activeTab === 'effect'}
@@ -214,12 +325,94 @@ const LeftSidebar: React.FC<Props> = ({ activeTab, setActiveTab, onAddBlock, onA
                                 <div className="my-2 border-t border-dashed border-[var(--border-color)]" />
                                 <h4 className="text-[10px] font-bold text-[var(--text-secondary)] mb-2 px-1">배경 도형</h4>
 
+                                {renderDecoBtn(<Minus size={18} />, "선 (Line)", 'line')}
+
                                 {/* 🌟 배경 도형 추가 버튼 */}
                                 {renderDecoBtn(<div className="w-4 h-4 rounded-full border-2 border-current" />, "원형 (Circle)", 'circle')}
                                 {renderDecoBtn(<div className="w-4 h-4 border-2 border-current" />, "사각형 (Square)", 'square')}
                                 {renderDecoBtn(<Star size={18} />, "별 모양 (Star)", 'star')}
                                 {renderDecoBtn(<Sparkles size={18} />, "유기적 도형 (Blob)", 'blob')}
+                                {renderDecoBtn(<ImageDown size={18} />, "사진 (Image)", 'image')}
                             </>
+                        )}
+
+                        {/* ✨ Freepik Search UI */}
+                        {activeTab === 'freepik' && (
+                            <div className="flex flex-col h-full">
+                                <h4 className="text-[10px] font-bold text-[var(--text-secondary)] mb-2 px-1">Freepik 이미지 검색</h4>
+
+                                {/* Filter */}
+                                <div className="flex gap-1 overflow-x-auto pb-2 no-scrollbar mb-2">
+                                    {['all', 'photo', 'vector', 'icon'].map((type) => (
+                                        <button
+                                            key={type}
+                                            onClick={() => setFreepikFilter(type as any)}
+                                            className={`px-2 py-1 text-[10px] font-bold rounded-md border transition-all whitespace-nowrap
+                                                ${freepikFilter === type
+                                                    ? 'bg-indigo-50 border-indigo-200 text-indigo-600'
+                                                    : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-card-secondary)]'
+                                                }`}
+                                        >
+                                            {type === 'all' && '전체'}
+                                            {type === 'photo' && '사진'}
+                                            {type === 'vector' && '일러스트'}
+                                            {type === 'icon' && '아이콘'}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="flex gap-1 mb-3">
+                                    <input
+                                        type="text"
+                                        value={freepikQuery}
+                                        onChange={(e) => setFreepikQuery(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleFreepikSearch(1)}
+                                        placeholder="검색어 입력..."
+                                        className="flex-1 min-w-0 px-2 py-1.5 bg-[var(--bg-card-secondary)] border border-[var(--border-color)] rounded-lg text-xs outline-none focus:border-indigo-500 transition-colors"
+                                    />
+                                    <button
+                                        onClick={() => handleFreepikSearch(1)}
+                                        disabled={isFreepikLoading}
+                                        className="shrink-0 p-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center w-8"
+                                    >
+                                        <Search size={14} />
+                                    </button>
+                                </div>
+
+                                {/* Results Grid */}
+                                {isFreepikLoading ? (
+                                    <div className="py-8 text-center text-[var(--text-secondary)] text-xs flex flex-col items-center gap-2">
+                                        <Sparkles className="animate-spin text-indigo-500" size={16} />
+                                        <span>이미지 찾는 중...</span>
+                                    </div>
+                                ) : (
+                                    <div
+                                        ref={freepikScrollRef}
+                                        onScroll={handleFreepikScroll}
+                                        className="grid grid-cols-2 gap-2 overflow-y-auto pb-4 custom-scrollbar pr-1 flex-1 min-h-0"
+                                    >
+                                        {freepikResults.length > 0 ? (
+                                            freepikResults.map((res) => (
+                                                <button
+                                                    key={res.id}
+                                                    onClick={() => handleFreepikImageClick(res)}
+                                                    className="relative aspect-square rounded-lg overflow-hidden border border-[var(--border-color)] hover:border-indigo-500 transition-all group hover:opacity-90 bg-white"
+                                                >
+                                                    <img
+                                                        src={res.url}
+                                                        alt="result"
+                                                        className={`w-full h-full ${freepikFilter === 'icon' ? 'object-contain p-1' : 'object-cover'}`}
+                                                    />
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <div className="col-span-2 py-8 text-center text-[var(--text-secondary)] text-[10px] opacity-70">
+                                                검색 결과가 없습니다
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         )}
 
                         {activeTab === 'effect' && (
@@ -228,6 +421,7 @@ const LeftSidebar: React.FC<Props> = ({ activeTab, setActiveTab, onAddBlock, onA
                                 {renderBtn(<ChevronsRight size={18} />, "스크롤 텍스트", 'scroll-text')}
                             </>
                         )}
+
 
                         {activeTab === 'data' && (
                             <>

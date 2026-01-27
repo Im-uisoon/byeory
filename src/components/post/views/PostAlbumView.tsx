@@ -1,13 +1,15 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion'; // ✨ Added Import
 import { useNavigate } from 'react-router-dom';
 import type { PostData, CustomAlbum } from '../types';
 // ✨ Added GalleryHorizontal for All Posts icon
 import { Folder, Plus, PenLine, MoreVertical, Trash2, Edit, Sparkles, Lock, Users, Gift } from 'lucide-react';
 import RenameAlbumModal from '../components/RenameAlbumModal';
-import AlbumBook from '../components/AlbumCover/AlbumBook';
-import type { AlbumCoverConfig } from '../components/AlbumCover/constants';
-import CoverCustomizer from '../components/AlbumCover/CoverCustomizer';
+import AlbumBook from '../components/albumCover/AlbumBook';
+import type { AlbumCoverConfig } from '../components/albumCover/constants';
+import CoverCustomizer from '../components/albumCover/CoverCustomizer';
 import RoomSettingsModal from '../components/RoomSettingsModal';
+import BookOpeningOverlay from './BookOpeningOverlay'; // ✨ Import Overlay
 
 
 interface Props {
@@ -34,6 +36,7 @@ const PostAlbumView: React.FC<Props> = ({ posts, customAlbums, onAlbumClick, onC
     const [editingCoverId, setEditingCoverId] = useState<string | null>(null);
     const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
     const [isEasterEggOpen, setIsEasterEggOpen] = useState(false);
+    const [openingAlbumId, setOpeningAlbumId] = useState<string | null>(null); // ✨ Animation State
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -254,14 +257,25 @@ const PostAlbumView: React.FC<Props> = ({ posts, customAlbums, onAlbumClick, onC
                     const stats = albumStats.stats[album.id];
 
                     return (
-                        <div key={album.id} onClick={() => onAlbumClick(album.id)} className="relative group cursor-pointer">
-                            <AlbumBook
-                                title={album.name}
-                                tag={album.tag || stats.representativeTag || undefined} // ✨ Use inferred tag
-                                count={album.type === 'room' ? undefined : formatStats(stats)}
-                                config={album.coverConfig}
-                                className="shadow-sm border border-transparent group-hover:shadow-md transition-shadow duration-300"
-                            />
+                        <div key={album.id} onClick={() => {
+                            // ✨ 모임방은 책 펼침 애니메이션 없이 바로 목록으로 이동
+                            // type이 'room'이거나 ID가 'room-'으로 시작하면 모임방으로 판단
+                            if (album.type === 'room' || album.id.startsWith('room-')) {
+                                onAlbumClick(album.id);
+                            } else {
+                                setOpeningAlbumId(album.id);
+                            }
+                        }} className="relative group cursor-pointer">
+                            {/* ✨ Wrap in motion.div for animation source */}
+                            <motion.div layoutId={`album-cover-${album.id}`}>
+                                <AlbumBook
+                                    title={album.name}
+                                    tag={album.tag || stats.representativeTag || undefined} // ✨ Use inferred tag
+                                    count={album.type === 'room' ? undefined : formatStats(stats)}
+                                    config={album.coverConfig}
+                                    className="shadow-sm border border-transparent group-hover:shadow-md transition-shadow duration-300"
+                                />
+                            </motion.div>
 
                             {/* ✨ Room Indicator */}
                             {album.type === 'room' && (
@@ -311,15 +325,18 @@ const PostAlbumView: React.FC<Props> = ({ posts, customAlbums, onAlbumClick, onC
                     );
                 })}
 
+                {/* ✨ All Posts Card - Fixed Position */}
                 {/* ✨ All Records Album (Moved to End) */}
-                <div onClick={() => onAlbumClick('__all__')} className="relative group cursor-pointer">
-                    <AlbumBook
-                        title="모든 기록 보관함"
-                        count={`기록 ${posts.length}개`}
-                        // config={coverConfigs['__all__']} // Removed LS
-                        className="shadow-sm border border-transparent group-hover:shadow-md transition-shadow duration-300"
-                        showFullTitle={true}
-                    />
+                <div onClick={() => setOpeningAlbumId('__all__')} className="relative group cursor-pointer">
+                    <motion.div layoutId="album-cover-__all__">
+                        <AlbumBook
+                            title="모든 기록 보관함"
+                            count={`기록 ${posts.length}개`}
+                            // config={coverConfigs['__all__']} // Removed LS
+                            className="shadow-sm border border-transparent group-hover:shadow-md transition-shadow duration-300"
+                            showFullTitle={true}
+                        />
+                    </motion.div>
                     {/* Helper Menu for Cover Customization */}
                     <div className="absolute top-2 right-2 z-30">
                         <button onClick={(e) => handleMenuClick(e, '__all__')} className="p-1.5 text-gray-600 hover:text-gray-900 transition-colors bg-white/90 backdrop-blur-sm rounded-full shadow-sm">
@@ -408,6 +425,46 @@ const PostAlbumView: React.FC<Props> = ({ posts, customAlbums, onAlbumClick, onC
                     </div>
                 </div>
             )}
+
+            {/* ✨ Book Opening Overlay */}
+            <AnimatePresence>
+                {openingAlbumId && (() => {
+                    const album = openingAlbumId === '__all__'
+                        ? { id: '__all__', name: '모든 기록 보관함', count: `기록 ${posts.length}개`, tag: undefined } // ✨ Added tag: undefined
+                        : customAlbums.find(a => a.id === openingAlbumId);
+
+                    // ✨ Find first post for content preview
+                    let overlayPost: PostData | undefined;
+                    if (openingAlbumId === '__all__') {
+                        overlayPost = posts[0];
+                    } else if (album) {
+                        // Filter posts belonging to this album
+                        overlayPost = posts.find(p => {
+                            // Ensure numeric comparison safety
+                            if (p.albumIds && p.albumIds.includes(String(openingAlbumId))) return true;
+                            // Fallback tag matching
+                            if (album.tag && p.tags && p.tags.includes(album.tag)) return true;
+                            return false;
+                        });
+                    }
+
+                    if (!album && openingAlbumId !== '__all__') return null;
+
+                    return (
+                        <BookOpeningOverlay
+                            key="album-overlay"
+                            album={album}
+                            post={overlayPost} // ✨ Pass first post for content
+                            onAnimationComplete={() => {
+                                // ✨ Navigate after animation
+                                onAlbumClick(openingAlbumId);
+                                setOpeningAlbumId(null);
+                            }}
+                            onClose={() => setOpeningAlbumId(null)}
+                        />
+                    );
+                })()}
+            </AnimatePresence>
         </div>
     );
 };

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Folder, Users, Lock } from 'lucide-react';
-import AlbumBook from './AlbumCover/AlbumBook';
-import CoverCustomizer from './AlbumCover/CoverCustomizer';
-import type { AlbumCoverConfig } from './AlbumCover/constants';
-import { COVER_COLORS } from './AlbumCover/constants';
+import AlbumBook from './albumCover/AlbumBook';
+import CoverCustomizer from './albumCover/CoverCustomizer';
+import type { AlbumCoverConfig } from './albumCover/constants';
+import { COVER_COLORS } from './albumCover/constants';
 
 import type { CustomAlbum } from '../types';
 

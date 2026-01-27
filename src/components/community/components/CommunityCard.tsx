@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'; // useState 추가
 import { Heart, Eye, MessageCircle } from 'lucide-react';
 import type { CommunityResponse } from '../types';
-import MiniPostViewer from "./MiniPostPreview.tsx";
+import MiniPostViewer from "../../post/components/MiniPostPreview.tsx";
 import { increaseViewCount } from '../api'; // API 함수 import
 
 interface CommunityCardProps {
@@ -129,15 +129,15 @@ const CommunityCard: React.FC<CommunityCardProps> = ({ data, onClick, onLike, on
             </div>
 
             {/* 4. 하단 정보 영역 */}
-            <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex flex-col gap-1.5 sm:gap-2 z-20">
+            <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex flex-col gap-2.5 sm:gap-2 z-20">
 
                 {/* 태그 */}
                 {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-1">
                         {tags.slice(0, 3).map((tag, idx) => (
                             <span
                                 key={idx}
-                                className="px-1.5 py-0.5 rounded bg-white/20 backdrop-blur-md text-white text-[9px] sm:text-[10px] font-medium border border-white/10"
+                                className="px-2 py-1 sm:px-1.5 sm:py-0.5 rounded bg-white/20 backdrop-blur-md text-white text-xs sm:text-[10px] font-medium border border-white/10"
                             >
                                 #{tag}
                             </span>
@@ -146,7 +146,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({ data, onClick, onLike, on
                 )}
 
                 {/* 날짜 */}
-                <span className="self-end text-[9px] text-white/70 bg-black/20 px-1.5 py-[2px] rounded-md backdrop-blur-sm whitespace-nowrap">
+                <span className="self-end text-[10px] sm:text-[9px] text-white/70 bg-black/20 px-2 py-0.5 sm:px-1.5 sm:py-[2px] rounded-md backdrop-blur-sm whitespace-nowrap">
                     {new Date(data.createdAt).toLocaleDateString()}
                 </span>
 
@@ -154,35 +154,35 @@ const CommunityCard: React.FC<CommunityCardProps> = ({ data, onClick, onLike, on
                 <div className="flex items-center justify-between">
 
                     {/* 작성자 */}
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-gradient-to-tr from-indigo-400 to-purple-400 flex items-center justify-center text-[9px] sm:text-[10px] text-white font-bold shadow-sm transition-all">
+                    <div className="flex items-center gap-2 sm:gap-1.5">
+                        <div className="w-6 h-6 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-gradient-to-tr from-indigo-400 to-purple-400 flex items-center justify-center text-[10px] sm:text-[10px] text-white font-bold shadow-sm transition-all">
                             {data.writerNickname.charAt(0)}
                         </div>
-                        <span className="text-[10px] sm:text-[11px] font-semibold text-white drop-shadow-md truncate max-w-[70px] sm:max-w-[100px]">
+                        <span className="text-xs sm:text-[11px] font-semibold text-white drop-shadow-md truncate max-w-[90px] sm:max-w-[100px]">
                             {data.writerNickname}
                         </span>
                     </div>
 
                     {/* 통계 배지 */}
-                    <div className="flex items-center gap-1.5 sm:gap-2 bg-black/40 backdrop-blur-md px-2 py-1 sm:px-2.5 sm:py-1 rounded-full border border-white/10 shadow-lg transition-all">
+                    <div className="flex items-center gap-3 sm:gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 sm:px-2.5 sm:py-1 rounded-full border border-white/10 shadow-lg transition-all">
                         {/* 좋아요 */}
                         <div
                             onClick={handleLikeClick}
-                            className={`flex items-center gap-0.5 cursor-pointer hover:scale-110 transition-transform ${data.isLiked ? 'text-pink-400' : 'text-white'}`}
+                            className={`flex items-center gap-1 sm:gap-0.5 cursor-pointer hover:scale-110 transition-transform ${data.isLiked ? 'text-pink-400' : 'text-white'}`}
                         >
-                            <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill={data.isLiked ? "currentColor" : "none"} />
-                            <span className="text-[9px] sm:text-[10px] font-medium text-white ml-0.5">{data.likeCount}</span>
+                            <Heart className="w-4 h-4 sm:w-3.5 sm:h-3.5" fill={data.isLiked ? "currentColor" : "none"} />
+                            <span className="text-xs sm:text-[10px] font-medium text-white ml-0.5">{data.likeCount}</span>
                         </div>
 
-                        <div className="w-[1px] h-2 sm:h-2.5 bg-white/20"></div>
+                        <div className="w-[1px] h-3 sm:h-2.5 bg-white/20"></div>
 
                         {/* 댓글 */}
                         <div
                             onClick={handleCommentClick}
-                            className="flex items-center gap-0.5 text-white cursor-pointer hover:scale-110 transition-transform"
+                            className="flex items-center gap-1 sm:gap-0.5 text-white cursor-pointer hover:scale-110 transition-transform"
                         >
-                            <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                            <span className="text-[9px] sm:text-[10px] font-medium ml-0.5">{data.commentCount || 0}</span>
+                            <MessageCircle className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                            <span className="text-xs sm:text-[10px] font-medium ml-0.5">{data.commentCount || 0}</span>
                         </div>
                     </div>
                 </div>

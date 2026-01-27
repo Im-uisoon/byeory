@@ -11,10 +11,17 @@ const API_BASE_URL = `${BASE_URL}/api/posts`;
 const API_ALBUM_URL = `${BASE_URL}/api/albums`;
 const API_ROOM_URL = `${BASE_URL}/api/rooms`;
 export const API_TEMPLATE_URL = `${BASE_URL}/api/templates`; // Fixed URL matching Controller
+// Helper to safely decode URI components
+const safeDecodeURIComponent = (str: string) => {
+  try {
+    return decodeURIComponent(str);
+  } catch (e) {
+    console.warn("URI Decode Failed:", str, e);
+    return str; // Return original string or empty if completely broken
+  }
+};
 
-// ... existing code ...
 
-// Helper to clean ID (remove 'room-' prefix)
 export const cleanId = (id: string | number): string => {
   return String(id).replace(/^room-/, "");
 };
@@ -181,6 +188,81 @@ const sanitizeCoordinate = (val: any): number | string => {
   return 0;
 };
 
+// 게시글 단건 조회 (GET)
+export const fetchPostById = async (id: string | number) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("게시글 불러오기 실패");
+    const p = await response.json();
+
+    return {
+      ...p,
+      id: Number(p.id),
+      tags: (p.hashtags || p.tags || [])
+        .map((t: any) => {
+          if (typeof t === "string") return t;
+          return t.name || t.tag || t.tagName || "";
+        })
+        .filter(Boolean),
+      stickers: (p.stickers || []).map((s: any) => ({
+        ...s,
+        x: sanitizeCoordinate(s.x),
+        y: sanitizeCoordinate(s.y),
+        w: sanitizeCoordinate(s.w),
+        h: sanitizeCoordinate(s.h),
+        opacity: s.opacity || 1,
+        // Widget Persistence Decoding
+        widgetType: s.url && s.url.startsWith('widget://')
+          ? safeDecodeURIComponent(s.url.split('widget://')[1].split('?')[0])
+          : undefined,
+        widgetProps: s.url && s.url.startsWith('widget://')
+          ? (() => {
+            try {
+              const params = new URLSearchParams(s.url.split('?')[1]);
+              const propsStr = params.get('props');
+              return propsStr ? JSON.parse(safeDecodeURIComponent(propsStr)) : {};
+            } catch (e) {
+              console.warn("Widget Props Parse Failed:", e);
+              return {};
+            }
+          })()
+          : undefined
+      })),
+      floatingTexts: (p.floatingTexts || []).map((t: any) => ({
+        ...t,
+        x: sanitizeCoordinate(t.x),
+        y: sanitizeCoordinate(t.y),
+        w: sanitizeCoordinate(t.w),
+        h: sanitizeCoordinate(t.h),
+        opacity: t.opacity || 1,
+      })),
+      floatingImages: (p.floatingImages || []).map((i: any) => ({
+        ...i,
+        x: sanitizeCoordinate(i.x),
+        y: sanitizeCoordinate(i.y),
+        w: sanitizeCoordinate(i.w),
+        h: sanitizeCoordinate(i.h),
+        opacity: i.opacity || 1,
+      })),
+      titleStyles: p.titleStyles || {},
+      albumIds: (p.targetAlbumIds || []).map((t: any) => {
+        if (typeof t === "object" && t !== null) return String(t.id);
+        return String(t);
+      }),
+      isFavorite: p.isFavorite || false,
+      mode: p.mode || "AUTO",
+      isPublic: p.isPublic ?? true,
+      styles: p.styles || {},
+      visibility: p.isPublic === false ? "private" : "public",
+    };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 // 게시글 목록 조회 (GET)
 export const fetchPostsFromApi = async () => {
   try {
@@ -208,10 +290,19 @@ export const fetchPostsFromApi = async () => {
         opacity: s.opacity || 1, // Fix invisible items
         // Widget Persistence Decoding
         widgetType: s.url && s.url.startsWith('widget://')
-          ? decodeURIComponent(s.url.split('widget://')[1].split('?')[0])
+          ? safeDecodeURIComponent(s.url.split('widget://')[1].split('?')[0])
           : undefined,
         widgetProps: s.url && s.url.startsWith('widget://')
-          ? JSON.parse(decodeURIComponent(new URLSearchParams(s.url.split('?')[1]).get('props') || '{}'))
+          ? (() => {
+            try {
+              const params = new URLSearchParams(s.url.split('?')[1]);
+              const propsStr = params.get('props');
+              return propsStr ? JSON.parse(safeDecodeURIComponent(propsStr)) : {};
+            } catch (e) {
+              console.warn("Widget Props Parse Failed:", e);
+              return {};
+            }
+          })()
           : undefined
       })),
       floatingTexts: (p.floatingTexts || []).map((t: any) => ({
@@ -318,10 +409,19 @@ export const savePostToApi = async (
         opacity: s.opacity || 1, // Fix invisible items
         // Widget Persistence Decoding
         widgetType: s.url && s.url.startsWith('widget://')
-          ? decodeURIComponent(s.url.split('widget://')[1].split('?')[0])
+          ? safeDecodeURIComponent(s.url.split('widget://')[1].split('?')[0])
           : undefined,
         widgetProps: s.url && s.url.startsWith('widget://')
-          ? JSON.parse(decodeURIComponent(new URLSearchParams(s.url.split('?')[1]).get('props') || '{}'))
+          ? (() => {
+            try {
+              const params = new URLSearchParams(s.url.split('?')[1]);
+              const propsStr = params.get('props');
+              return propsStr ? JSON.parse(safeDecodeURIComponent(propsStr)) : {};
+            } catch (e) {
+              console.warn("Widget Props Parse Failed:", e);
+              return {};
+            }
+          })()
           : undefined
       })),
       floatingTexts: (savedPost.floatingTexts || []).map((t: any) => ({

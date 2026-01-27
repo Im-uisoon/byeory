@@ -69,8 +69,12 @@ export interface WidgetSize {
     label: string;
 }
 export interface BlockLayout {
-    w: number | string; // 픽셀(number) 또는 '100%'(string) 허용
-    h: number | string; // 'auto' 또는 픽셀
+    x: number; // Normalized 0-100 relative to widget
+    y: number; // Normalized 0-100 relative to widget
+    w: number | string; // px or %
+    h: number | string; // px or 'auto'
+    rotation?: number;
+    zIndex?: number;
 }
 // 🆕 [중요] 다단 컬럼 포커스 위치 타입
 // (어떤 블록의 몇 번째 칸이 선택되었는지 저장)
@@ -79,7 +83,7 @@ export type ContainerLocation = {
     colIndex: number;
 } | null;
 
-export type DecorationType = 'circle' | 'square' | 'blob' | 'star';
+export type DecorationType = 'circle' | 'square' | 'blob' | 'star' | 'text' | 'image' | 'sticker' | 'shape' | 'line';
 
 export interface WidgetDecoration {
     id: string;
@@ -95,6 +99,14 @@ export interface WidgetDecoration {
     points?: { x: number; y: number }[]; // [NEW] For organic blobs (normalized 0-100 relative to box)
     imageUrl?: string; // [NEW] For image decorations
 
+    // [NEW] Crop Support
+    crop?: {
+        contentX: number;
+        contentY: number;
+        contentW: number;
+        contentH: number;
+    };
+
     // [NEW] Video Support
     mediaType?: 'image' | 'video'; // Default to 'image' if undefined
     videoUrl?: string;
@@ -105,6 +117,14 @@ export interface WidgetDecoration {
         duration?: number; // seconds
         delay?: number;    // seconds
     };
+    // [NEW] Text & Extended Support
+    text?: string;
+    style?: React.CSSProperties;
+    src?: string; // Alias for imageUrl
+    width?: number; // Alias for w
+    height?: number; // Alias for h
+    unit?: string; // 'px' | '%'
+    shapeType?: string; // For type='shape'
 }
 
 export interface WidgetScene {

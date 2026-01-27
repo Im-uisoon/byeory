@@ -5,7 +5,7 @@ interface TypewriterProps {
     gridSize?: { w: number; h: number };
 }
 
-export function Typewriter({ gridSize }: TypewriterProps) {
+export function Typewriter({ }: TypewriterProps) {
     const [text, setText] = useWidgetStorage('widget-typewriter-text', '');
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

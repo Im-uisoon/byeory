@@ -1,16 +1,20 @@
 import type { WidgetSize } from './types';
 
 
-// 1. 위젯 사이즈별 최대 용량 (Capacity)
+// DashboardGrid: Canvas Width = 800px.
+// Margins = 16px (approx). Content Width = ~768px.
+// 4 Columns: (180px * 4) + (16px * 3) = 720 + 48 = 768px.
+// Base Unit: 180px x 180px.
 export const WIDGET_SIZES: Record<string, WidgetSize & { capacity: number }> = {
-    '1x1': { w: 160, h: 160, label: '1x1', capacity: 4 },  // 정사각형 (작음)
-    '1x2': { w: 160, h: 340, label: '1x2', capacity: 6 },  // 모바일: 세로로 김
-    '2x1': { w: 340, h: 160, label: '2x1', capacity: 4 },   // 작음: 텍스트 4줄 정도
-    '2x2': { w: 340, h: 340, label: '2x2', capacity: 10 }, // 중간: 텍스트 10줄 정도
-    '3x3': { w: 520, h: 520, label: '3x3', capacity: 20 }, // 대형
-    '4x4': { w: 700, h: 700, label: '4x4', capacity: 35 }, // 초대형
+    '1x1': { w: 180, h: 180, label: '1x1', capacity: 4 },
+    '1x2': { w: 180, h: 376, label: '1x2', capacity: 6 },
+    '2x1': { w: 376, h: 180, label: '2x1', capacity: 6 },
+    '2x2': { w: 376, h: 376, label: '2x2', capacity: 15 },
+    '3x3': { w: 572, h: 572, label: '3x3', capacity: 30 }, // (180*3 + 16*2)
+    '4x4': { w: 768, h: 768, label: '4x4', capacity: 50 }, // (180*4 + 16*3)
     // Irregular Sizes
-    '2x3': { w: 340, h: 520, label: '2x3', capacity: 15 }, // 세로형 (중대형)
+    '2x3': { w: 376, h: 572, label: '2x3', capacity: 20 },
+    '2x4': { w: 376, h: 768, label: '2x4', capacity: 25 },
 };
 
 // 2. 블록 타입별 비용 (Cost)

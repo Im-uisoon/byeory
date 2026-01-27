@@ -320,19 +320,24 @@ export const usePostEditor = () => {
             "정말 삭제하시겠습니까?",
             "danger",
             async () => {
-                await deletePostApi(id);
-                await fetchPosts();
+                closeConfirmModal(); // ✨ Close immediately to prevent stuck UI
+                try {
+                    await deletePostApi(id);
+                    await fetchPosts();
 
-                // ✨ Exit if current post is deleted
-                if (currentPostId === id) {
-                    setCurrentPostId(null);
-                    if (selectedAlbumId) {
-                        setViewMode('folder');
-                    } else {
-                        setViewMode('album');
+                    // ✨ Exit if current post is deleted
+                    if (currentPostId === id) {
+                        setCurrentPostId(null);
+                        if (selectedAlbumId) {
+                            setViewMode('folder');
+                        } else {
+                            setViewMode('album');
+                        }
                     }
+                } catch (e) {
+                    console.error("Failed to delete post", e);
+                    // Optionally show error modal here if needed
                 }
-                closeConfirmModal();
             }
         );
     };
@@ -542,13 +547,23 @@ export const usePostEditor = () => {
         setStickers(prev => [...prev, newSticker]);
     };
 
-    const addFloatingText = () => {
+    const addFloatingText = (initialX?: number, initialY?: number) => {
         setFloatingTexts(prev => [...prev, {
             id: `text-${Date.now()}`,
-            x: '50%', y: '50%', w: 200, h: 50,
-            rotation: 0, zIndex: getMaxZ() + 1,
-            text: "New Text",
-            styles: { fontSize: '16px', fontWeight: 'normal', textAlign: 'center', color: '#000000', backgroundColor: 'transparent', fontFamily: 'Arial' }
+            x: initialX ?? 350, y: initialY ?? 350, w: 200, h: 200, // ✨ Use provided coords or default
+            rotation: 0, zIndex: (getMaxZ() || 10) + 1,
+            text: "내용을 입력하세요",
+            styles: {
+                fontSize: '18px',
+                fontWeight: 'normal',
+                textAlign: 'center', // ✨ Center align by default for sticky notes
+                color: '#000000',
+                backgroundColor: '#fefce8', // ✨ Pastel Yellow (yellow-50)
+                fontFamily: "'Noto Sans KR', sans-serif",
+                padding: '20px',
+                boxShadow: '2px 2px 5px rgba(0,0,0,0.1)',
+                borderRadius: '0px'
+            }
         }]);
     };
 

@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react'; // React import
-import { useWidgetRegistry } from "./useWidgetRegistry.ts";
+import { useWidgetRegistry } from "./useWidgetRegistry";
 import type { WidgetConfig } from "./type.ts";
 import { X, Check, ChevronDown } from 'lucide-react'; // Icon imports
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { getMyWidgets, deleteWidget } from './customwidget/widgetApi.ts'; // Import API
-import { WIDGET_COMPONENT_MAP } from "./componentMap.ts"; // Import Component Map
-import CustomWidgetPreview from "./customwidget/components/CustomWidgetPreview"; // Import Preview Component
+import { deleteWidget } from './customwidget/widgetApi.ts'; // Import API
 import { searchWidget } from '../../../utils/searchUtils'; // ✨ Import search utility
 
 // MainPage에서 넘겨주는 props 이름(onSelect, onEdit)과 일치시킵니다.
 interface WidgetGalleryProps {
-    onSelect: (widgetType: string) => void; // 문자열(ID)을 넘기도록 수정
+    onSelect: (widgetType: string, props?: any) => void; // 문자열(ID)을 넘기도록 수정. props 추가
     onMultiSelect?: (items: WidgetConfig[]) => void; // 다중 선택 처리를 위한 prop 추가
     onEdit?: (data: WidgetConfig) => void; // MainPage에서 onEdit도 넘겨주고 있으므로 추가
     onCreate?: () => void; // 커스텀 위젯 만들기 버튼 동작
@@ -19,66 +17,8 @@ interface WidgetGalleryProps {
 
 export const WidgetGallery = ({ onSelect, onMultiSelect, onEdit, onCreate }: WidgetGalleryProps) => {
     // 훅을 통해 DB에서 위젯 정보를 가져옴
-    const { registry, isLoading: isRegistryLoading, error } = useWidgetRegistry();
-    const [customWidgets, setCustomWidgets] = useState<WidgetConfig[]>([]);
-    const [isCustomLoading, setIsCustomLoading] = useState(true);
-
-    // 🌟 [NEW] 커스텀 위젯 직접 Fetching
-    useEffect(() => {
-        const fetchCustomWidgets = async () => {
-            try {
-                const data = await getMyWidgets();
-                if (Array.isArray(data)) {
-                    const refinedConfigs: WidgetConfig[] = data.map((item: any) => {
-                        const baseType = item.type;
-                        let Component = WIDGET_COMPONENT_MAP[baseType];
-
-                        // 'custom-block' 폴백 처리
-                        if (!Component && baseType === 'custom-block') {
-                            Component = (props: any) => (
-                                <CustomWidgetPreview
-                                    content={{
-                                        ...props.content,
-                                        decorations: props.decorations || [], // 🌟 decorations 주입
-                                    }}
-                                    defaultSize={item.defaultSize || '2x2'}
-                                />
-                            );
-                        }
-
-                        if (!Component) return null;
-
-                        return {
-                            id: item.id,
-                            widgetType: `custom-${item.id}`,
-                            label: item.name || '제목 없음',
-                            description: `Custom ${baseType} widget`,
-                            category: 'My Saved',
-                            keywords: ['custom', baseType],
-                            defaultSize: item.defaultSize || '1x1',
-                            validSizes: [[1, 1], [1, 2], [2, 1], [2, 2]],
-                            defaultProps: {
-                                content: item.content,
-                                styles: item.styles,
-                                decorations: item.decorations // 🌟 decorations 필드 추가
-                            },
-                            isSystem: false,
-                            thumbnail: undefined,
-                            component: Component,
-                        } as WidgetConfig;
-                    }).filter((w): w is WidgetConfig => w !== null);
-
-                    setCustomWidgets(refinedConfigs);
-                }
-            } catch (e) {
-                console.error("Failed to load custom widgets in Gallery:", e);
-            } finally {
-                setIsCustomLoading(false);
-            }
-        };
-
-        fetchCustomWidgets();
-    }, []);
+    const { registry, isLoading: isRegistryLoading, error, refresh } = useWidgetRegistry();
+    // 🌟 [수정] customWidgets 상태 제거 (useWidgetRegistry에서 통합 관리)
 
     // 🌟 삭제 핸들러
     const handleDelete = async (widgetId: string, widgetName: string) => {
@@ -86,8 +26,8 @@ export const WidgetGallery = ({ onSelect, onMultiSelect, onEdit, onCreate }: Wid
 
         try {
             await deleteWidget(widgetId);
-            // 목록 갱신: 로컬 상태에서 제거 (형변환 주의)
-            setCustomWidgets(prev => prev.filter(w => String(w.id) !== widgetId));
+            // 목록 갱신: 리프레시 호출
+            refresh();
             alert('삭제되었습니다.');
         } catch (e) {
             console.error('삭제 실패', e);
@@ -129,11 +69,8 @@ export const WidgetGallery = ({ onSelect, onMultiSelect, onEdit, onCreate }: Wid
         );
     };
 
-    // registry 객체를 배열로 변환 + 커스텀 위젯 합치기
-    const allWidgets = [
-        ...(registry ? Object.values(registry) : []),
-        ...customWidgets
-    ];
+    // registry 객체를 배열로 변환
+    const allWidgets = registry ? Object.values(registry) : [];
 
     // ✨ 고급 검색 적용
     const widgets = allWidgets.filter(widget => searchWidget(searchTerm, widget));
@@ -175,7 +112,7 @@ export const WidgetGallery = ({ onSelect, onMultiSelect, onEdit, onCreate }: Wid
     }, [searchTerm, widgets.length]);
 
     // Render Logic with Early Returns
-    const isLoading = isRegistryLoading || isCustomLoading;
+    const isLoading = isRegistryLoading;
     if (isLoading) {
         return <div className="p-4 text-center text-gray-500">위젯 목록을 불러오는 중...</div>;
     }

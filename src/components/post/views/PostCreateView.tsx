@@ -158,6 +158,7 @@ const PostCreateView: React.FC<Props> = ({ editor, handleImagesUpload }) => {
                     handleSelect(null, null);
                 }}
                 paperStyles={paperStyles}
+                onAddFloatingText={addFloatingText} // ✨ Pass Handler
             />
 
             {/* 오른쪽 사이드바 */}
@@ -217,6 +218,7 @@ const PostCreateView: React.FC<Props> = ({ editor, handleImagesUpload }) => {
                 showHiddenTemplates={showHiddenTemplates}
                 setShowHiddenTemplates={setShowHiddenTemplates}
                 onRestoreTemplate={handleRestoreTemplate}
+                onClearSelection={() => handleSelect(null, null)} // ✨ Clear selection when sidebar is clicked
             />
 
             {/* ✨ 저장 위치 선택 모달 */}

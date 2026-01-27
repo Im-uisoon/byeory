@@ -5,12 +5,14 @@ import RoomSettingsModal from '../components/RoomSettingsModal';
 import NewCycleModal from '../components/NewCycleModal';
 import RoomCycleList from '../components/RoomCycleList';
 import type { PostData } from '../types';
-import { ArrowLeft, Folder, PenLine, Trash2, X, Lock, Users } from 'lucide-react';
+import { ArrowLeft, Folder, PenLine, Trash2, X, Lock, Users, BookOpen } from 'lucide-react';
 import PostBreadcrumb from '../components/PostBreadcrumb';
 import { useBreadcrumbs } from '../hooks/useBreadcrumbs';
 import { DndContext, useDraggable, useDroppable, type DragEndEvent, useSensors, useSensor, MouseSensor, TouchSensor } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import PostThumbnail from '../components/PostThumbnail';
+import PostBookView from './PostBookView';
+import { motion } from 'framer-motion';
 
 // ✨ Helper Components for DnD
 const DraggablePost = ({ id, children }: { id: string | number, children: React.ReactNode }) => {
@@ -64,6 +66,9 @@ interface Props {
 
 const PostFolderView: React.FC<Props> = ({ albumId, allPosts, onPostClick, onStartWriting, onCreateAlbum, customAlbums, onAlbumClick, onDeletePost, onDeleteAlbum, onToggleFavorite, onRefresh, showConfirmModal }) => {
     const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
+    // ✨ Default to Book View (User Requirement: Album -> Book -> Folder)
+    // We will validate if posts exist before rendering
+    const [isBookViewOpen, setIsBookViewOpen] = useState(true);
     const [roomSettingsId, setRoomSettingsId] = useState<string | null>(null); // ✨ Room Settings Modal State
     const [isCycleModalOpen, setIsCycleModalOpen] = useState(false); // ✨ New Cycle Modal State
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false); // ✨ Favorites Filter State
@@ -72,6 +77,11 @@ const PostFolderView: React.FC<Props> = ({ albumId, allPosts, onPostClick, onSta
     const [contents, setContents] = useState<{ type: 'POST' | 'FOLDER', data: any }[]>([]);
     const [currentAlbum, setCurrentAlbum] = useState<any | null>(null); // ✨ Current Album Info
     const [isLoading, setIsLoading] = useState(false);
+
+    // ✨ Animation States (Removed Overlay Logic)
+    // const [openingPostId, setOpeningPostId] = useState<string | number | null>(null);
+    // const [isOpeningLoading, setIsOpeningLoading] = useState(false);
+    const [startIndex, setStartIndex] = useState(0);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false); // For "Add Existing"
 
     // ✨ Local State for Refreshing RoomCycleList
@@ -88,6 +98,14 @@ const PostFolderView: React.FC<Props> = ({ albumId, allPosts, onPostClick, onSta
                 // 1. Determine Type from CustomAlbums
                 // albumId is potentially prefixed (e.g., 'room-1')
                 const targetAlbum = customAlbums.find(a => String(a.id) === String(albumId));
+                const isSpecial = albumId === '__all__' || albumId === '__others__';
+
+                // ✨ Fix: Prevent 400 Error by skipping fetch if album not found in loaded list
+                if (!isSpecial && !targetAlbum) {
+                    setIsLoading(false);
+                    return;
+                }
+
                 const type = targetAlbum?.type || 'album';
 
                 // ✨ Fix: Strip prefix strictly for API calls
@@ -275,7 +293,25 @@ const PostFolderView: React.FC<Props> = ({ albumId, allPosts, onPostClick, onSta
             setContents(previousContents);
             alert("이동에 실패했습니다.");
         }
+    }
+
+
+    // ✨ Handle Post Click for Animation (Now just direct open)
+    const handleGridPostClick = async (post: PostData) => {
+        // Find index
+        const idx = displayedPosts.findIndex(p => String(p.id) === String(post.id));
+        setStartIndex(idx !== -1 ? idx : 0);
+        setIsBookViewOpen(true);
+
+        // We still fetch details if needed, but PostBookView handles its own fetching usually?
+        // Actually PostBookView inputs `posts`. If `blocks` are missing, PostBookView's MiniPostViewer handles it?
+        // No, MiniPostViewer needs blocks.
+        // We integrated `fetchPostById` in `PostBookView` (via User Request 2 Conversation 2).
+        // Let's rely on PostBookView's internal lazy loading if it exists, OR pre-fetch here if we want.
+        // For now, simple switch.
     };
+
+
 
     // ✨ DnD Sensors
     const sensors = useSensors(
@@ -316,6 +352,17 @@ const PostFolderView: React.FC<Props> = ({ albumId, allPosts, onPostClick, onSta
                                     title={showFavoritesOnly ? "모든 기록 보기" : "즐겨찾기만 보기"}
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill={showFavoritesOnly ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                </button>
+                            )}
+
+                            {/* ✨ Book View Toggle */}
+                            {!isRoom && displayedPosts.length > 0 && (
+                                <button
+                                    onClick={() => setIsBookViewOpen(true)}
+                                    className="ml-2 p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors"
+                                    title="책 뷰로 보기"
+                                >
+                                    <BookOpen size={20} />
                                 </button>
                             )}
 
@@ -494,7 +541,11 @@ const PostFolderView: React.FC<Props> = ({ albumId, allPosts, onPostClick, onSta
                             ) : (
                                 displayedPosts.map(p => (
                                     <DraggablePost key={p.id} id={p.id}>
-                                        <div onClick={() => onPostClick(p)} className="bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-color)] hover:shadow-md cursor-pointer transition transform hover:-translate-y-1 relative group h-80 flex flex-col overflow-hidden">
+                                        <motion.div
+                                            layoutId={`post-cover-${p.id}`}
+                                            onClick={() => handleGridPostClick(p)}
+                                            className="bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-color)] hover:shadow-md cursor-pointer transition transform hover:-translate-y-1 relative group h-80 flex flex-col overflow-hidden"
+                                        >
                                             {/* 1. Top - Thumbnail (60%) */}
                                             <div className="h-[60%] w-full bg-white relative overflow-hidden">
                                                 <PostThumbnail post={p} width={400} height={320} />
@@ -589,7 +640,7 @@ const PostFolderView: React.FC<Props> = ({ albumId, allPosts, onPostClick, onSta
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     </DraggablePost>
                                 ))
                             )}
@@ -653,6 +704,22 @@ const PostFolderView: React.FC<Props> = ({ albumId, allPosts, onPostClick, onSta
                         </div>
                     </div>
                 )}
+                {/* ✨ Book View Modal - 모임방에서는 책 뷰를 표시하지 않음 */}
+                {!isRoom && isBookViewOpen && displayedPosts.length > 0 && (
+                    <PostBookView
+                        posts={displayedPosts}
+                        currentAlbum={currentAlbum} // ✨ Pass album for Back Cover
+                        onClose={() => {
+                            // Close Book View
+                            setIsBookViewOpen(false);
+                            // Navigate to Album List (Exit Folder) immediately after book view closes (it does its own animation)
+                            onAlbumClick(null);
+                        }}
+                        startIndex={startIndex}
+                        onOpenList={() => setIsBookViewOpen(false)} // ✨ Stay in folder, just close book
+                    />
+                )}
+
                 {/* ✨ Room Settings Modal */}
                 {roomSettingsId && (
                     <RoomSettingsModal

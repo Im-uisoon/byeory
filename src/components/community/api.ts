@@ -36,6 +36,22 @@ export const fetchMyProfile = async (): Promise<UserProfileBasic | null> => {
 
 // --- Community APIs ---
 
+// Helper to decode sticker
+const decodeSticker = (s: any) => ({
+    ...s,
+    x: sanitizeCoordinate(s.x),
+    y: sanitizeCoordinate(s.y),
+    w: sanitizeCoordinate(s.w),
+    h: sanitizeCoordinate(s.h),
+    // ✨ Widget Persistence Decoding
+    widgetType: s.url && s.url.startsWith('widget://')
+        ? decodeURIComponent(s.url.split('widget://')[1].split('?')[0])
+        : undefined,
+    widgetProps: s.url && s.url.startsWith('widget://')
+        ? JSON.parse(decodeURIComponent(new URLSearchParams(s.url.split('?')[1]).get('props') || '{}'))
+        : undefined
+});
+
 export const getCommunities = async (page: number, size: number = 10, userId?: number, hashtag?: string): Promise<PageResponse<CommunityResponse>> => {
     const params: any = { page, size };
     if (userId) {
@@ -58,7 +74,23 @@ export const getCommunities = async (page: number, size: number = 10, userId?: n
             tags: (item.tags || item.hashtags || []).map((t: any) => {
                 if (typeof t === 'string') return t;
                 return t.name || t.tagName || "";
-            }).filter((t: string) => t.length > 0)
+            }).filter((t: string) => t.length > 0),
+            // ✨ Decode stickers for feed
+            stickers: (item.stickers || []).map(decodeSticker),
+            floatingTexts: (item.floatingTexts || []).map((t: any) => ({
+                ...t,
+                x: sanitizeCoordinate(t.x),
+                y: sanitizeCoordinate(t.y),
+                w: sanitizeCoordinate(t.w),
+                h: sanitizeCoordinate(t.h)
+            })),
+            floatingImages: (item.floatingImages || []).map((i: any) => ({
+                ...i,
+                x: sanitizeCoordinate(i.x),
+                y: sanitizeCoordinate(i.y),
+                w: sanitizeCoordinate(i.w),
+                h: sanitizeCoordinate(i.h)
+            }))
         }));
     }
     return data;
@@ -97,20 +129,7 @@ export const getCommunityDetail = async (postId: number, userId?: number): Promi
         }).filter((t: string) => t.length > 0);
 
         if (data.stickers) {
-            data.stickers = data.stickers.map((s: any) => ({
-                ...s,
-                x: sanitizeCoordinate(s.x),
-                y: sanitizeCoordinate(s.y),
-                w: sanitizeCoordinate(s.w),
-                h: sanitizeCoordinate(s.h),
-                // ✨ Widget Persistence Decoding
-                widgetType: s.url && s.url.startsWith('widget://')
-                    ? decodeURIComponent(s.url.split('widget://')[1].split('?')[0])
-                    : undefined,
-                widgetProps: s.url && s.url.startsWith('widget://')
-                    ? JSON.parse(decodeURIComponent(new URLSearchParams(s.url.split('?')[1]).get('props') || '{}'))
-                    : undefined
-            }));
+            data.stickers = data.stickers.map(decodeSticker);
         }
         if (data.floatingTexts) {
             data.floatingTexts = data.floatingTexts.map((t: any) => ({
@@ -206,20 +225,7 @@ export const getPostDetail = async (postId: number): Promise<any> => {
                 h: sanitizeCoordinate(i.h)
             })),
             blocks: p.blocks || [],
-            stickers: (p.stickers || []).map((s: any) => ({
-                ...s,
-                x: sanitizeCoordinate(s.x),
-                y: sanitizeCoordinate(s.y),
-                w: sanitizeCoordinate(s.w),
-                h: sanitizeCoordinate(s.h),
-                // ✨ Widget Persistence Decoding
-                widgetType: s.url && s.url.startsWith('widget://')
-                    ? decodeURIComponent(s.url.split('widget://')[1].split('?')[0])
-                    : undefined,
-                widgetProps: s.url && s.url.startsWith('widget://')
-                    ? JSON.parse(decodeURIComponent(new URLSearchParams(s.url.split('?')[1]).get('props') || '{}'))
-                    : undefined
-            })),
+            stickers: (p.stickers || []).map(decodeSticker),
             titleStyles: p.titleStyles || {},
             isFavorite: p.isFavorite || false,
         };

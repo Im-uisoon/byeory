@@ -197,13 +197,12 @@ const WelcomePage: React.FC = () => {
                                         <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                                         <div className="w-3 h-3 rounded-full bg-green-400"></div>
                                     </div>
-                                    <div className="flex-1 p-6 flex items-center justify-center">
-                                        <div className="text-center space-y-4">
-                                            <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 mx-auto flex items-center justify-center">
-                                                <PenTool className="w-8 h-8 text-blue-500" />
-                                            </div>
-                                            <div className="text-slate-400 font-medium">작성 화면 미리보기</div>
-                                        </div>
+                                    <div className="w-full h-full flex items-center justify-center bg-slate-50 dark:bg-slate-900 overflow-hidden">
+                                        <img
+                                            src="/writing_preview_new.png"
+                                            alt="작성 화면 미리보기"
+                                            className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-500"
+                                        />
                                     </div>
                                 </div>
                             </div>

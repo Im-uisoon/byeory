@@ -6,7 +6,7 @@ import { useCredits } from '../../context/CreditContext';
 import { useMenu } from '../settings/menu/MenuSettings';
 import { useAuth } from '../../context/AuthContext';
 import { usePlayTime } from '../../hooks';
-import DailyQuestModal from '../Credit/DailyQuestModal';
+import DailyQuestModal from '../credit/DailyQuestModal';
 import { useDrag, useDrop } from 'react-dnd';
 import { useHeaderSettings } from '../../hooks/useHeaderSettings';
 

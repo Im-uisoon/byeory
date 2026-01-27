@@ -12,8 +12,8 @@ import { MenuProvider } from './components/settings/menu/MenuSettings';
 import { ThemeProvider } from './context/ThemeContext';
 import MarketPage from './pages/market/MarketPage.tsx'
 
-import ProfilePage from './pages/profile/My/ProfilePage'
-import ProfileEditPage from './pages/profile/My/ProfileEditPage';
+import ProfilePage from './pages/profile/my/ProfilePage'
+import ProfileEditPage from './pages/profile/my/ProfileEditPage';
 import PasswordChangePage from './pages/profile/PasswordChangePage';
 import GetOutPage from './pages/profile/GetOutPage';
 import InitialProfileSetup from './pages/auth/InitialProfileSetup';

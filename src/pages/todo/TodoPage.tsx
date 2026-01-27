@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Navigation from '../../components/header/Navigation';
-import { DailyView } from '../../components/Todo/Daily';
-import { WeeklyView } from '../../components/Todo/Weekly';
-import { MonthlyView } from '../../components/Todo/Monthly';
+import { DailyView } from '../../components/todo/Daily';
+import { WeeklyView } from '../../components/todo/Weekly';
+import { MonthlyView } from '../../components/todo/Monthly';
 import type { Todo, Post } from '../../types/todo';
-import { useSharedTodo } from '../../components/Todo/useSharedTodo';
+import { useSharedTodo } from '../../components/todo/useSharedTodo';
 import { useIsMobile } from '../../hooks'; // ✨
 import FloatingSettingsPanel from '../../components/dashboard/components/FloatingSettingsPanel'; // ✨
 

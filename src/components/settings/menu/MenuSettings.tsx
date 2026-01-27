@@ -172,7 +172,7 @@ const MenuSettings: React.FC = () => {
     const { saveMenuOrder, cancelMenuOrder } = useMenu();
 
     return (
-        <div className="flex flex-col items-start justify-start p-4 md:p-8 text-left animate-fade-in pb-10 md:pb-8 w-full">
+        <div className="flex flex-col items-center justify-start p-4 md:p-8 text-center animate-fade-in pb-10 md:pb-8 w-full">
             {/* 아이콘 및 헤더 */}
             <div className="mb-4 md:mb-6 relative">
                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center theme-text-primary mb-2 md:mb-4 animate-bounce-slow">
@@ -212,7 +212,7 @@ const MenuSettings: React.FC = () => {
 
             {/* 시각적 힌트 */}
             <div className="mt-12 p-4 rounded-xl theme-bg-card-secondary theme-border border max-w-md w-full">
-                <div className="flex items-center justify-start gap-2 text-sm theme-text-secondary">
+                <div className="flex items-center justify-center gap-2 text-sm theme-text-secondary">
                     <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
                     <span className="md:inline hidden">상단 메뉴바가 점선으로 표시되면 편집 가능 상태입니다.</span>
                     <span className="md:hidden inline">하단 아이콘을 꾹 눌러 이동하세요.</span>

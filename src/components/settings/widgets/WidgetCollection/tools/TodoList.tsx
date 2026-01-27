@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Check } from 'lucide-react';
 import { WidgetWrapper } from '../../Shared';
-import { useSharedTodo } from '../../../../Todo/useSharedTodo';
+import { useSharedTodo } from '../../../../todo/useSharedTodo';
 import type { Todo } from '../../../../../types/todo';
 
 interface TodoListWidgetProps {

@@ -1,55 +1,69 @@
 
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import type { PostData } from '../types';
-import EditorCanvas from './editor/EditorCanvas';
+import MiniPostViewer from './MiniPostPreview.tsx';
 
 interface Props {
     post: PostData;
-    width?: number; // Container width in px (e.g. card width)
-    height?: number; // Container height in px
+    width?: number; // Fallback or initial width
+    height?: number; // Container height (unused for scaling, but kept for interface)
 }
 
 const PostThumbnail: React.FC<Props> = ({ post, width = 300, height = 300 }) => {
-    // Determine scale factor
-    // EditorCanvas standard width is 800px.
-    // We want to fit 800px into `width`.
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [scale, setScale] = useState(1);
     const baseWidth = 800;
-    const scale = width / baseWidth;
 
-    // We need to pass dummy handlers since it's read-only
-    const noop = () => { };
+    useEffect(() => {
+        const updateScale = () => {
+            if (containerRef.current) {
+                const currentWidth = containerRef.current.clientWidth;
+                // Avoid DBZ or zero-scale issues
+                if (currentWidth > 0) {
+                    setScale(currentWidth / baseWidth);
+                }
+            }
+        };
+
+        // Initial calc
+        updateScale();
+
+        const observer = new ResizeObserver(() => {
+            updateScale();
+        });
+
+        if (containerRef.current) {
+            observer.observe(containerRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    // Dummy handler for read-only removed
+
 
     return (
         <div
+            ref={containerRef}
             style={{
                 width: '100%',
                 height: '100%',
                 overflow: 'hidden',
                 position: 'relative',
-                backgroundColor: '#ffffff' // base background
+                backgroundColor: '#ffffff'
             }}
-            className="pointer-events-none select-none" // Disable interaction
+            className="pointer-events-none select-none"
         >
             <div
                 style={{
-                    transform: `scale(${scale})`,
-                    transformOrigin: 'top left',
-                    width: `${baseWidth}px`,
-                    // Height should be enough to cover the aspect ratio. 
-                    // If height is provided, we map it back to unscaled height.
-                    height: `${height / scale}px`,
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    // scale is handled by MiniPostViewer internally via zoom
                 }}
+
             >
-                {/* 
-                    EditorCanvas expects full editor props. 
-                    We provide the post data and defaults for the rest.
-                */}
-                <EditorCanvas
+                <MiniPostViewer
                     title={post.title}
-                    setTitle={noop}
                     titleStyles={post.titleStyles || {
                         fontSize: '30px',
                         fontWeight: 'bold',
@@ -57,20 +71,14 @@ const PostThumbnail: React.FC<Props> = ({ post, width = 300, height = 300 }) => 
                         color: '#000000',
                         textAlign: 'left'
                     }}
-                    paperStyles={post.styles || {}} // ✨ Apply paper styles
-                    viewMode="read"
+                    styles={post.styles || {}}
                     blocks={post.blocks || []}
-                    setBlocks={noop}
                     stickers={post.stickers || []}
                     floatingTexts={post.floatingTexts || []}
                     floatingImages={post.floatingImages || []}
-                    selectedId={null}
-                    selectedType={null}
-                    onSelect={noop}
-                    onUpdate={noop}
-                    onDelete={noop}
-                    onBlockImageUpload={noop}
-                    onBackgroundClick={noop}
+                    scale={scale}
+                    minHeight="100%"
+                    hideTitle={true} // ✨ Hide redundant name in thumbnail
                 />
             </div>
         </div>

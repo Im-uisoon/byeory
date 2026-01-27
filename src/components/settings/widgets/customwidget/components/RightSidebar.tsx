@@ -11,10 +11,13 @@ import {
     Heart,
     Zap,
     Star, Search, Film, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight,
-    Sparkles // [NEW] Added for decoration header
+    Sparkles, // [NEW] Added for decoration header
+    Scissors, Eraser, RotateCcw // ✨ NEW
 } from 'lucide-react';
+import { useBackgroundRemoval } from '../../../../../hooks/useBackgroundRemoval'; // ✨ NEW
+import { uploadImageToSupabase } from '../../../../../components/post/api';
 import type { WidgetBlock, WidgetDecoration } from '../types';
-import { getLabelByType } from '../utils';
+import { getLabelByType, generateBlobPoints } from '../utils';
 
 interface Props {
     selectedBlock: WidgetBlock | undefined;
@@ -26,12 +29,145 @@ interface Props {
     onUpdateDecoration?: (id: string, updates: Partial<WidgetDecoration>) => void;
     onDeleteDecoration?: (id: string) => void;
     type?: string;
+    onCropToggle?: () => void; // ✨ NEW
+    isCropping?: boolean;      // ✨ NEW
 }
 
 const RightSidebar: React.FC<Props> = ({
-    selectedBlock, onUpdateBlock, onDeleteBlock, onClose,
-    selectedDecoration, onUpdateDecoration, onDeleteDecoration
+    selectedBlock, onUpdateBlock, onClose,
+    selectedDecoration, onUpdateDecoration, onDeleteDecoration,
+    onCropToggle, isCropping // ✨ NEW
 }) => {
+    // ✨ Handle AI Background Removal
+    const { removeBg, isProcessing } = useBackgroundRemoval();
+
+    // --- 🌟 [추가] 책 검색을 위한 로컬 상태 ---
+    const [bookQuery, setBookQuery] = React.useState('');
+    const [bookResults, setBookResults] = React.useState<any[]>([]);
+    const [isSearching, setIsSearching] = React.useState(false);
+
+    // --- 🌟 [추가] 영화 검색 상태 ---
+    const [movieQuery, setMovieQuery] = React.useState('');
+    const [movieResults, setMovieResults] = React.useState<any[]>([]);
+    const [isMovieSearching, setIsMovieSearching] = React.useState(false);
+
+    // 블록이 바뀌면 검색 상태 초기화
+    React.useEffect(() => {
+        setBookQuery('');
+        setBookResults([]);
+        setIsSearching(false);
+        setMovieQuery('');
+        setMovieResults([]);
+    }, [selectedBlock?.id]);
+
+    const handleRemoveBackground = async () => {
+        if (!selectedDecoration || !selectedDecoration.imageUrl || !onUpdateDecoration) return;
+
+        // Set Loading State (Optimistic or local?)
+        // WidgetDecoration doesn't have isProcessing field, maybe strictly local or add to type?
+        // EditorToolbar updated the ITEM.
+        // Let's assume we can block UI with isProcessing from hook.
+
+        try {
+            let blobToProcess: Blob;
+            const imageUrl = selectedDecoration.imageUrl;
+
+            // Handle Cropped Images: Bake visible area
+            if (selectedDecoration.crop) {
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.src = imageUrl;
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                });
+
+                const canvas = document.createElement('canvas');
+                // Use crop dims
+                canvas.width = selectedDecoration.crop.contentW; // Or viewport W?
+                // Wait, crop.contentW is the IMAGE width.
+                // In EditorToolbar:
+                // canvas.width = currentItem.w (viewport)
+                // ctx.drawImage(img, crop.contentX, crop.contentY, ...)
+                // But wait, contentX/Y are relative to viewport?
+                // Actually EditorToolbar logic was:
+                // ctx.drawImage(img, crop.contentX, crop.contentY, crop.contentW, crop.contentH)
+                // This draws the SUBSET of the image?
+                // No, Canvas.draw image(img, sx, sy, sw, sh, dx, dy, dw, dh)
+                // EditorToolbar used 5 args: (img, dx, dy, dw, dh).
+                // This draws the ENTIRE image into the rect (dx, dy, dw, dh).
+                // That logic in EditorToolbar seems to be baking the *transformed* image?
+                // Let's re-read EditorToolbar logic carefully (Step 449).
+
+                /*
+                ctx.drawImage(
+                    img,
+                    currentItem.crop.contentX,
+                    currentItem.crop.contentY,
+                    currentItem.crop.contentW,
+                    currentItem.crop.contentH
+                );
+                */
+                // This draws the image at (contentX, contentY) with size (contentW, contentH) onto a canvas of size (w, h).
+                // Since contentX/Y are typically negative (panning), this draws the visible portion into the viewport.
+                // Correct.
+
+                const viewportW = selectedDecoration.w;
+                const viewportH = selectedDecoration.h;
+
+                canvas.width = viewportW;
+                canvas.height = viewportH;
+
+                const ctx = canvas.getContext('2d');
+                if (!ctx) throw new Error("Canvas Context Error");
+
+                ctx.drawImage(
+                    img,
+                    selectedDecoration.crop.contentX,
+                    selectedDecoration.crop.contentY,
+                    selectedDecoration.crop.contentW,
+                    selectedDecoration.crop.contentH
+                );
+
+                const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve));
+                if (!blob) throw new Error("Blob failed");
+                blobToProcess = blob;
+
+            } else {
+                const response = await fetch(imageUrl, { mode: 'cors' });
+                blobToProcess = await response.blob();
+            }
+
+            const { url: previewUrl, blob: processedBlob } = await removeBg(blobToProcess);
+            if (previewUrl && processedBlob) {
+                // 1. Optimistic Update (Preview)
+                onUpdateDecoration(selectedDecoration.id, {
+                    imageUrl: previewUrl,
+                    crop: undefined // Reset crop after BG removal
+                });
+
+                // 2. Upload to Supabase (Persistence)
+                try {
+                    const file = new File([processedBlob], `bg-removed-${Date.now()}.png`, { type: 'image/png' });
+                    const supabaseUrl = await uploadImageToSupabase(file);
+
+                    if (supabaseUrl) {
+                        onUpdateDecoration(selectedDecoration.id, {
+                            imageUrl: supabaseUrl
+                        });
+                    }
+                } catch (uploadError) {
+                    console.error("Background removed image upload failed:", uploadError);
+                    // Keep the blob URL if upload fails, or show error?
+                    // User might lose it on refresh, but better than broken UI now.
+                }
+            }
+
+        } catch (error) {
+            console.error("BG Removal Error:", error);
+            alert("배경 제거 중 오류가 발생했습니다.");
+        }
+    };
 
     // 🌟 데코레이션 편집 모드
     if (selectedDecoration && !selectedBlock) {
@@ -86,6 +222,88 @@ const RightSidebar: React.FC<Props> = ({
                                     placeholder="이미지 URL 입력..."
                                     className="w-full p-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded text-xs text-[var(--text-primary)]"
                                 />
+                                {/* ✨ Crop & AI Tools */}
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={handleRemoveBackground}
+                                        disabled={isProcessing}
+                                        className={`flex items-center justify-center gap-1 py-1.5 rounded text-xs font-bold transition-colors
+                                            ${isProcessing ? 'bg-violet-100 text-violet-500 animate-pulse' : 'bg-violet-50 text-violet-600 hover:bg-violet-100'} border border-violet-100`}
+                                        title={isProcessing ? "배경 제거 중..." : "AI 배경 제거"}
+                                    >
+                                        <Eraser size={14} className={isProcessing ? "animate-spin" : ""} />
+                                        {isProcessing ? '처리 중...' : '배경 제거'}
+                                    </button>
+                                    <button
+                                        onClick={onCropToggle}
+                                        className={`flex items-center justify-center gap-1 py-1.5 rounded text-xs font-bold transition-colors border
+                                            ${isCropping
+                                                ? 'bg-indigo-500 text-white border-indigo-600 shadow-sm'
+                                                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <Scissors size={14} />
+                                        {isCropping ? '완료' : '자르기'}
+                                    </button>
+                                </div>
+
+                                {/* ✨ Crop Tools (Zoom & Reset) */}
+                                {isCropping && selectedDecoration.crop && (
+                                    <div className="mt-2 p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border-color)] animate-in fade-in slide-in-from-top-2">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Search size={12} className="text-[var(--text-tertiary)]" />
+                                            <input
+                                                type="range"
+                                                min="100"
+                                                max="300"
+                                                step="1"
+                                                value={(selectedDecoration.crop.contentW / (selectedDecoration.w || 100)) * 100}
+                                                onChange={(e) => {
+                                                    if (!onUpdateDecoration || !selectedDecoration.crop) return;
+                                                    const scale = parseInt(e.target.value) / 100;
+                                                    const baseW = selectedDecoration.w || 100;
+                                                    const currentW = selectedDecoration.crop.contentW;
+                                                    const newW = baseW * scale;
+
+                                                    // Maintain Aspect Ratio
+                                                    const aspect = selectedDecoration.crop.contentW / selectedDecoration.crop.contentH;
+                                                    const newH = newW / aspect;
+
+                                                    // Center Zoom (Adjustment)
+                                                    const diffW = newW - currentW;
+                                                    const diffH = newH - selectedDecoration.crop.contentH;
+
+                                                    onUpdateDecoration(selectedDecoration.id, {
+                                                        crop: {
+                                                            ...selectedDecoration.crop,
+                                                            contentW: newW,
+                                                            contentH: newH,
+                                                            contentX: selectedDecoration.crop.contentX - (diffW / 2),
+                                                            contentY: selectedDecoration.crop.contentY - (diffH / 2)
+                                                        }
+                                                    });
+                                                }}
+                                                className="flex-1 h-1 bg-[var(--border-color)] rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                            />
+                                            <span className="text-[10px] text-[var(--text-secondary)] w-8 text-right font-mono">
+                                                {Math.round((selectedDecoration.crop.contentW / (selectedDecoration.w || 100)) * 100)}%
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                if (onUpdateDecoration) {
+                                                    onUpdateDecoration(selectedDecoration.id, {
+                                                        crop: undefined
+                                                    });
+                                                }
+                                                if (onCropToggle) onCropToggle();
+                                            }}
+                                            className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-red-500 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                                        >
+                                            <RotateCcw size={12} /> 자르기 초기화
+                                        </button>
+                                    </div>
+                                )}
                                 {selectedDecoration.imageUrl && (
                                     <div className="w-20 h-20 bg-[var(--bg-primary)] rounded border border-[var(--border-color)] overflow-hidden mx-auto">
                                         <img src={selectedDecoration.imageUrl} alt="preview" className="w-full h-full object-contain" />
@@ -151,6 +369,19 @@ const RightSidebar: React.FC<Props> = ({
                             </div>
                         )}
                     </div>
+
+                    {/* 🌟 [NEW] Blob Regeneration (Restored at Top) */}
+                    {selectedDecoration.type === 'blob' && (
+                        <div className="space-y-2 pb-3 mb-3 border-b border-[var(--border-color)]">
+                            <label className="text-xs font-bold text-[var(--text-secondary)] uppercase">도형 생성</label>
+                            <button
+                                onClick={() => onUpdateDecoration?.(selectedDecoration.id, { points: generateBlobPoints() })}
+                                className="w-full py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded hover:bg-[var(--bg-card-hover)] text-xs font-bold flex items-center justify-center gap-2"
+                            >
+                                <Sparkles size={14} /> 랜덤 모양 생성
+                            </button>
+                        </div>
+                    )}
 
                     {/* 1. 색상 선택 */}
                     <div className="space-y-2">
@@ -254,24 +485,7 @@ const RightSidebar: React.FC<Props> = ({
                         </div>
                     </div>
 
-                    {/* 5. 레이어 순서 (Z-Index) */}
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-[var(--text-secondary)] uppercase">레이어 순서</label>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => onUpdateDecoration?.(selectedDecoration.id, { zIndex: (selectedDecoration.zIndex || 0) - 1 })}
-                                className="flex-1 p-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded hover:bg-[var(--bg-card-hover)] text-xs"
-                            >
-                                뒤로 보내기
-                            </button>
-                            <button
-                                onClick={() => onUpdateDecoration?.(selectedDecoration.id, { zIndex: (selectedDecoration.zIndex || 0) + 1 })}
-                                className="flex-1 p-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded hover:bg-[var(--bg-card-hover)] text-xs"
-                            >
-                                앞으로 가져오기
-                            </button>
-                        </div>
-                    </div>
+
 
                     {/* 6. 🌟 [NEW] 애니메이션 설정 */}
                     <div className="space-y-2">
@@ -333,8 +547,9 @@ const RightSidebar: React.FC<Props> = ({
                             </div>
                         )}
                     </div>
-                </div>
 
+
+                </div>
                 {/* Footer: 삭제 */}
                 <div className="p-4 border-t border-[var(--border-color)] bg-[var(--bg-card-secondary)]">
                     <button
@@ -350,28 +565,21 @@ const RightSidebar: React.FC<Props> = ({
                         삭제하기
                     </button>
                 </div>
-            </div>
+            </div >
         );
     }
 
     if (!selectedBlock) return <EmptyState />;
 
     const { type, content, styles } = selectedBlock;
-    // --- 🌟 [추가] 책 검색을 위한 로컬 상태 ---
-    const [bookQuery, setBookQuery] = React.useState('');
-    const [bookResults, setBookResults] = React.useState<any[]>([]);
-    const [isSearching, setIsSearching] = React.useState(false);
 
-    // --- 🌟 [추가] 영화 검색 상태 ---
-    const [movieQuery, setMovieQuery] = React.useState('');
-    const [movieResults, setMovieResults] = React.useState<any[]>([]);
-    const [isMovieSearching, setIsMovieSearching] = React.useState(false);
-    // 리스트 항목 업데이트 헬퍼
+    // リ스트 항목 업데이트 헬퍼
     const updateListItem = (index: number, value: string) => {
         const newItems = [...content.items];
         newItems[index] = value;
         onUpdateBlock(selectedBlock.id, { content: { items: newItems } });
     };
+
     // 리스트 항목 추가
     const addListItem = () => {
         onUpdateBlock(selectedBlock.id, { content: { items: [...content.items, '새 항목'] } });
@@ -386,14 +594,7 @@ const RightSidebar: React.FC<Props> = ({
     const updateContent = (key: string, value: any) => {
         onUpdateBlock(selectedBlock.id, { content: { ...content, [key]: value } });
     };
-    // 블록이 바뀌면 검색 상태 초기화
-    React.useEffect(() => {
-        setBookQuery('');
-        setBookResults([]);
-        setIsSearching(false);
-        setMovieQuery('');
-        setMovieResults([]);
-    }, [selectedBlock.id]);
+
     // 책 검색 함수
     const searchBooks = async () => {
         if (!bookQuery.trim()) return;
@@ -409,6 +610,8 @@ const RightSidebar: React.FC<Props> = ({
             setIsSearching(false);
         }
     };
+
+
     // 영화 검색 함수 (TMDB API 사용)
     const searchMovies = async () => {
         if (!movieQuery.trim()) return;
@@ -1662,7 +1865,7 @@ const RightSidebar: React.FC<Props> = ({
                                             newData[idx].value = Number(e.target.value);
                                             updateContent('data', newData);
                                         }}
-                                        className="w-12 bg-[var(--bg-card)] text-white p-2 rounded border border-[var(--border-color)] outline-none text-xs text-center"
+                                        className="w-12 bg-[var(--bg-card)] text-gray-900 p-2 rounded border border-[var(--border-color)] outline-none text-xs text-center"
                                     />
                                     <button
                                         onClick={() => {

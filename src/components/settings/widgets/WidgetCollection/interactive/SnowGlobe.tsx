@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { WidgetWrapper } from '../Common';
 import { TreePine } from 'lucide-react';
 
-export function SnowGlobe({ gridSize }: { gridSize?: { w: number; h: number } }) {
+export function SnowGlobe({ }: { gridSize?: { w: number; h: number } }) {
     // Responsive logic: removed manual scale. CSS handles it.
 
     // Note: We don't really need gridSize if we just fill container

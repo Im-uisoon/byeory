@@ -274,3 +274,20 @@ export const getSvgPathFromPoints = (points: { x: number; y: number }[], tension
 
     return res.join(" ");
 };
+
+export const generateBlobPoints = (numPoints: number = 6) => {
+    const points: { x: number; y: number }[] = [];
+    const center = { x: 50, y: 50 };
+    const radius = 40;
+
+    for (let i = 0; i < numPoints; i++) {
+        const angle = (i / numPoints) * 2 * Math.PI;
+        // Randomize radius between 30 and 50
+        const r = radius + (Math.random() * 20 - 10);
+        points.push({
+            x: center.x + r * Math.cos(angle),
+            y: center.y + r * Math.sin(angle)
+        });
+    }
+    return points;
+};

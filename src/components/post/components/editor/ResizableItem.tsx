@@ -13,17 +13,29 @@ interface Props {
     readOnly: boolean;
     onSelect: (isMulti?: boolean) => void;
     onUpdate: (changes: any) => void;
-    onDoubleClick?: () => void; // ✨ Double Click Support
+    onDoubleClick?: () => void;
     opacity?: number;
+    // ✨ Crop Support
+    isCropping?: boolean;
+    crop?: {
+        contentX: number;
+        contentY: number;
+        contentW: number;
+        contentH: number;
+    };
+    scale?: number; // ✨ Added scale support
+    minY?: number; // ✨ Minimum Y boundary
     children: React.ReactNode;
 }
 
 const ResizableItem: React.FC<Props> = ({
-    id, x, y, w, h, rotation, zIndex, opacity = 1, isSelected, readOnly, onSelect, onUpdate, onDoubleClick, children
+    id, x, y, w, h, rotation, zIndex, opacity = 1, isSelected, readOnly, onSelect, onUpdate, onDoubleClick, children,
+    isCropping = false, crop, scale = 1, minY = 0
 }) => {
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [isRotating, setIsRotating] = useState(false);
+    const [isPanning, setIsPanning] = useState(false); // ✨ Panning State
     const elementRef = useRef<HTMLDivElement>(null);
 
     // 드래그 시작 시점의 상태 저장
@@ -32,14 +44,16 @@ const ResizableItem: React.FC<Props> = ({
         initialX: 0, initialY: 0,
         initialW: 0, initialH: 0,
         initialRotate: 0,
-        centerX: 0, centerY: 0 // 회전 중심점
+        centerX: 0, centerY: 0,
+        // ✨ Panning Initial State
+        initialContentX: 0, initialContentY: 0,
+        initialContentW: 0, initialContentH: 0
     });
 
-    // ✨ Modified: Only trigger drag from the Move Handle
+    // ✨ Handle Item Move OR Content Pan
     const handleMoveStart = (e: React.MouseEvent) => {
         if (readOnly) return;
 
-        // ✨ Check if the target is an interactive element (e.g., input, textarea, button)
         const target = e.target as HTMLElement;
         if (['textarea', 'input', 'button', 'select'].includes(target.tagName.toLowerCase())) {
             return;
@@ -47,35 +61,53 @@ const ResizableItem: React.FC<Props> = ({
 
         e.stopPropagation();
         e.preventDefault();
-        onSelect(e.shiftKey); // ✨ Pass shift key
-        setIsDragging(true);
+        onSelect(e.shiftKey);
 
-        const currentX = elementRef.current?.offsetLeft || 0;
-        const currentY = elementRef.current?.offsetTop || 0;
+        if (isCropping && crop) {
+            // ✨ Pan Mode
+            setIsPanning(true);
+            startPos.current = {
+                ...startPos.current,
+                startX: e.clientX,
+                startY: e.clientY,
+                initialContentX: crop.contentX,
+                initialContentY: crop.contentY
+            };
+        } else {
+            // ✨ Move Mode
+            setIsDragging(true);
+            const currentX = elementRef.current?.offsetLeft || 0;
+            const currentY = elementRef.current?.offsetTop || 0;
 
-        startPos.current = {
-            ...startPos.current,
-            startX: e.clientX,
-            startY: e.clientY,
-            initialX: currentX,
-            initialY: currentY
-        };
+            startPos.current = {
+                ...startPos.current,
+                startX: e.clientX,
+                startY: e.clientY,
+                initialX: currentX,
+                initialY: currentY
+            };
+        }
     };
 
     const handleResizeStart = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         setIsResizing(true);
-
-        const currentW = elementRef.current?.offsetWidth || 0;
-        const currentH = elementRef.current?.offsetHeight || 0;
+        const currentW = typeof w === 'number' ? w : parseFloat(w);
+        const currentH = typeof h === 'number' ? h : parseFloat(h);
 
         startPos.current = {
             ...startPos.current,
             startX: e.clientX,
             startY: e.clientY,
+            initialX: Number(x),
+            initialY: Number(y),
             initialW: currentW,
-            initialH: currentH
+            initialH: currentH,
+            initialContentX: crop?.contentX || 0,
+            initialContentY: crop?.contentY || 0,
+            initialContentW: crop?.contentW || currentW,
+            initialContentH: crop?.contentH || currentH
         };
     };
 
@@ -83,7 +115,6 @@ const ResizableItem: React.FC<Props> = ({
         e.stopPropagation();
         e.preventDefault();
         setIsRotating(true);
-
         const rect = elementRef.current?.getBoundingClientRect();
         if (rect) {
             const centerX = rect.left + rect.width / 2;
@@ -99,20 +130,78 @@ const ResizableItem: React.FC<Props> = ({
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (isDragging) {
-                const deltaX = e.clientX - startPos.current.startX;
-                const deltaY = e.clientY - startPos.current.startY;
-                onUpdate({
-                    x: startPos.current.initialX + deltaX,
-                    y: startPos.current.initialY + deltaY
-                });
-            } else if (isResizing) {
-                const deltaX = e.clientX - startPos.current.startX;
-                const deltaY = e.clientY - startPos.current.startY;
+                const deltaX = (e.clientX - startPos.current.startX) / scale;
+                const deltaY = (e.clientY - startPos.current.startY) / scale;
+
+                let newX = startPos.current.initialX + deltaX;
+                let newY = startPos.current.initialY + deltaY;
+
+                // ✨ Boundary Clamping
+                if (elementRef.current && elementRef.current.parentElement) {
+                    const parentWidth = elementRef.current.parentElement.clientWidth;
+                    const parentHeight = elementRef.current.parentElement.clientHeight;
+                    const itemWidth = elementRef.current.offsetWidth;
+                    const itemHeight = elementRef.current.offsetHeight;
+
+                    // Clamp X
+                    if (newX < 0) newX = 0;
+                    if (newX + itemWidth > parentWidth) newX = parentWidth - itemWidth;
+
+                    // Clamp Y (Only top and bottom if needed, but usually we just clamp to positive Y)
+                    if (newY < minY) newY = minY;
+                    if (newY + itemHeight > parentHeight) newY = parentHeight - itemHeight;
+                }
 
                 onUpdate({
-                    w: Math.max(30, startPos.current.initialW + deltaX),
-                    h: Math.max(30, startPos.current.initialH + deltaY)
+                    x: newX,
+                    y: newY
                 });
+            } else if (isPanning && crop) {
+                // ✨ Update Content Position (Pan)
+                const deltaX = (e.clientX - startPos.current.startX) / scale;
+                const deltaY = (e.clientY - startPos.current.startY) / scale;
+
+                const newContentX = startPos.current.initialContentX + deltaX;
+                const newContentY = startPos.current.initialContentY + deltaY;
+
+                onUpdate({
+                    crop: {
+                        ...crop,
+                        contentX: newContentX,
+                        contentY: newContentY
+                    }
+                });
+
+            } else if (isResizing) {
+                const deltaX = (e.clientX - startPos.current.startX) / scale;
+                const deltaY = (e.clientY - startPos.current.startY) / scale;
+
+                const newW = Math.max(30, startPos.current.initialW + deltaX);
+                const newH = Math.max(30, startPos.current.initialH + deltaY);
+
+                if (!isCropping && crop) {
+                    // ✨ Proportional Scaling: Scale content along with viewport
+                    // Use initial values to avoid cumulative error
+                    const ratioW = newW / startPos.current.initialW;
+                    const ratioH = newH / startPos.current.initialH;
+
+                    onUpdate({
+                        w: newW,
+                        h: newH,
+                        crop: {
+                            ...crop,
+                            contentX: startPos.current.initialContentX * ratioW,
+                            contentY: startPos.current.initialContentY * ratioH,
+                            contentW: startPos.current.initialContentW * ratioW,
+                            contentH: startPos.current.initialContentH * ratioH
+                        }
+                    });
+                } else {
+                    onUpdate({
+                        w: newW,
+                        h: newH
+                    });
+                }
             } else if (isRotating) {
                 const { centerX, centerY } = startPos.current;
                 const radians = Math.atan2(e.clientY - centerY, e.clientX - centerX);
@@ -125,9 +214,10 @@ const ResizableItem: React.FC<Props> = ({
             setIsDragging(false);
             setIsResizing(false);
             setIsRotating(false);
+            setIsPanning(false);
         };
 
-        if (isDragging || isResizing || isRotating) {
+        if (isDragging || isResizing || isRotating || isPanning) {
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
         }
@@ -135,12 +225,24 @@ const ResizableItem: React.FC<Props> = ({
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDragging, isResizing, isRotating, onUpdate]);
+    }, [isDragging, isResizing, isRotating, isPanning, onUpdate, crop]);
+
+    // ✨ Compute Inner Content Style
+    const contentStyle: React.CSSProperties = crop ? {
+        position: 'absolute',
+        left: crop.contentX,
+        top: crop.contentY,
+        width: crop.contentW,
+        height: crop.contentH
+    } : {
+        width: '100%',
+        height: '100%'
+    };
 
     return (
         <div
             ref={elementRef}
-            id={id} // ✨ Added ID for selection logic
+            id={id}
             className={`absolute group`}
             style={{
                 left: typeof x === 'number' ? `${x}px` : x,
@@ -149,63 +251,82 @@ const ResizableItem: React.FC<Props> = ({
                 height: typeof h === 'number' ? `${h}px` : h,
                 transform: `rotate(${rotation}deg)`,
                 zIndex: zIndex,
-                opacity: opacity, // ✨ Apply Opacity
-                // ✨ Changed cursor logic: default for content, grabbing only when dragging
-                cursor: readOnly ? 'default' : 'default',
+                opacity: opacity,
+                cursor: readOnly ? 'default' : (isCropping ? 'move' : 'default'), // ✨ Cursor changed for pan mode
                 touchAction: 'none'
             }}
-            // ✨ Body Drag Enabled
             onMouseDown={handleMoveStart}
-            // ✨ Click selects the item, but doesn't start drag
             onClick={(e) => {
-                // If dragging happened, drag handler handled everything.
-                // We keep this just in case click didn't trigger drag (e.g. filtered element)
-                // but if filtered element (button), we probably want native click.
-
-                // If it wasn't filtered, handleMoveStart stopped propagation.
-                // So this onClick only fires if handleMoveStart allowed it bubbling?
-                // No, handleMoveStart calls stopPropagation.
-                // So this onClick is dead code for draggable items?
-                // Let's keep it safe:
                 e.stopPropagation();
                 onSelect(e.shiftKey);
             }}
+            onDoubleClick={(e) => {
+                e.stopPropagation();
+                if (onDoubleClick) onDoubleClick();
+            }}
         >
-            <div className={`w-full h-full relative ${isSelected && !readOnly ? 'ring-2 ring-indigo-500' : ''}`}>
-                {/* ✨ Enable pointer events for children */}
-                <div className="w-full h-full pointer-events-auto">
+            {/* ✨ Viewport: This handles the clipping for cropping */}
+            <div className={`w-full h-full relative ${isSelected && !readOnly ? (isCropping ? 'ring-2 ring-blue-500' : 'ring-2 ring-indigo-500') : ''} overflow-hidden rounded-[calc(inherit-4px)]`}>
+                {/* ✨ Inner Content Wrapper with Crop Logic */}
+                <div
+                    className="pointer-events-auto"
+                    style={contentStyle}
+                >
                     {children}
                 </div>
 
-                {isSelected && !readOnly && (
-                    <>
-                        {/* 크기 조절 핸들 (우측 하단) */}
-                        <div
-                            onMouseDown={handleResizeStart}
-                            className="absolute -bottom-3 -right-3 w-6 h-6 bg-white border-2 border-indigo-500 rounded-full cursor-se-resize z-50 shadow-md hover:scale-110 transition"
-                            title="크기 조절"
-                        />
-
-                        {/* 회전 핸들 (상단 중앙) */}
-                        <div
-                            onMouseDown={handleRotateStart}
-                            className="absolute -top-8 left-1/2 -translate-x-[20px] w-6 h-6 bg-white border-2 border-indigo-500 rounded-full cursor-grab z-50 flex items-center justify-center shadow-md hover:bg-indigo-50 hover:scale-110 transition"
-                            title="회전"
-                        >
-                            <span className="text-[10px] font-bold text-indigo-700">↻</span>
-                        </div>
-
-                        {/* ✨ 이동 핸들 (회전 핸들 옆) */}
-                        <div
-                            onMouseDown={handleMoveStart}
-                            className="absolute -top-8 left-1/2 translate-x-[6px] w-6 h-6 bg-indigo-500 text-white border-2 border-indigo-500 rounded-full cursor-move z-50 flex items-center justify-center shadow-md hover:bg-indigo-600 hover:scale-110 transition"
-                            title="이동"
-                        >
-                            <Move size={12} strokeWidth={3} />
-                        </div>
-                    </>
+                {/* ✨ Ghost Overlay for Panning Feedback */}
+                {isCropping && crop && (
+                    <div
+                        className="absolute border border-blue-400 pointer-events-none"
+                        style={{
+                            left: crop.contentX,
+                            top: crop.contentY,
+                            width: crop.contentW,
+                            height: crop.contentH,
+                            opacity: 0.5
+                        }}
+                    />
                 )}
             </div>
+
+            {/* ✨ Handles: Now rendered OUTSIDE the overflow-hidden div */}
+            {isSelected && !readOnly && (
+                <>
+                    {/* 크기 조절 핸들 (우측 하단) */}
+                    <div
+                        onMouseDown={handleResizeStart}
+                        className={`absolute -bottom-3 -right-3 w-6 h-6 bg-white border-2 rounded-full cursor-se-resize z-[100] shadow-md hover:scale-110 transition flex items-center justify-center
+                            ${isCropping ? 'border-blue-500' : 'border-indigo-500'}
+                        `}
+                        title={isCropping ? "영역 조절" : "크기 조절"}
+                    >
+                        <div className={`w-1.5 h-1.5 rounded-full ${isCropping ? 'bg-blue-500' : 'bg-indigo-500'}`} />
+                    </div>
+
+                    {/* 회전 핸들 (상단 중앙) */}
+                    <div
+                        onMouseDown={handleRotateStart}
+                        className={`absolute -top-10 left-1/2 -translate-x-1/2 w-8 h-8 bg-white border-2 rounded-full cursor-grab z-[100] flex items-center justify-center shadow-md hover:scale-110 transition
+                            ${isCropping ? 'border-blue-500 text-blue-600' : 'border-indigo-500 text-indigo-700'}
+                        `}
+                        title="회전"
+                    >
+                        <span className="text-xs font-bold font-mono">↻</span>
+                    </div>
+
+                    {!isCropping && (
+                        /* 이동 핸들 */
+                        <div
+                            onMouseDown={handleMoveStart}
+                            className="absolute -top-10 left-1/2 translate-x-[20px] w-8 h-8 bg-indigo-500 text-white border-2 border-indigo-500 rounded-full cursor-move z-[100] flex items-center justify-center shadow-md hover:bg-indigo-600 hover:scale-110 transition"
+                            title="이동"
+                        >
+                            <Move size={14} strokeWidth={3} />
+                        </div>
+                    )}
+                </>
+            )}
         </div>
     );
 };

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import ForcedPinInputModal from '../components/Security/ForcedPinInputModal';
+import ForcedPinInputModal from '../components/security/ForcedPinInputModal';
 import { authService } from '../services/authService';
 import { pinService } from '../services/pinService';
 
@@ -329,10 +329,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     sessionStorage.setItem('pin_verified', 'true'); // Mark as verified for this session
                     return null;
                 } else {
-                    // Logic flow: backend returns boolean true if correct.
-                    // If incorrect, it might throw 400 or just return false? 
-                    // Original code assumed fetch OK -> true/false.
-                    // New service throws if !ok.
+                    try {
+                        const status = await pinService.getStatus(token);
+                        if (status.failureCount > 0) {
+                            return `PIN 번호가 일치하지 않습니다. (${status.failureCount}/5)`;
+                        }
+                    } catch { }
                     return 'PIN 번호가 일치하지 않습니다.';
                 }
             } catch (error: any) {

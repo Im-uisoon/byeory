@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Timer, Play, Pause, RotateCcw, Plus, X, Check, Clock } from 'lucide-react';
 import { useWidgetStorage, useWidgetInterval } from '../SDK';
 
@@ -12,9 +12,7 @@ interface RecipeCardProps {
     gridSize?: { w: number; h: number };
 }
 
-export function RecipeCard({ gridSize }: RecipeCardProps) {
-    const isNarrow = gridSize ? gridSize.w === 1 : false;
-
+export function RecipeCard({ }: RecipeCardProps) {
     // --- State ---
     const [title, setTitle] = useWidgetStorage('recipe-title', 'My Recipe');
 
@@ -134,8 +132,8 @@ export function RecipeCard({ gridSize }: RecipeCardProps) {
                     <button
                         onClick={toggleTimer}
                         className={`p-1.5 rounded-full transition-all active:scale-95 shadow-sm border ${isActive
-                                ? 'bg-orange-100 text-orange-600 border-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:border-orange-800'
-                                : 'theme-bg-card-secondary theme-text-secondary theme-border hover:theme-text-primary'
+                            ? 'bg-orange-100 text-orange-600 border-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:border-orange-800'
+                            : 'theme-bg-card-secondary theme-text-secondary theme-border hover:theme-text-primary'
                             }`}
                     >
                         {isActive ? <Pause size={14} /> : <Play size={14} />}
@@ -156,8 +154,8 @@ export function RecipeCard({ gridSize }: RecipeCardProps) {
                         <button
                             onClick={() => toggleStep(step.id)}
                             className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${step.checked
-                                    ? 'bg-orange-400 border-orange-400 text-white'
-                                    : 'border-stone-300 dark:border-stone-600 bg-transparent'
+                                ? 'bg-orange-400 border-orange-400 text-white'
+                                : 'border-stone-300 dark:border-stone-600 bg-transparent'
                                 }`}
                         >
                             {step.checked && <Check size={10} strokeWidth={4} />}
@@ -168,8 +166,8 @@ export function RecipeCard({ gridSize }: RecipeCardProps) {
                             onChange={(e) => updateStepText(step.id, e.target.value)}
                             placeholder="Step description..."
                             className={`flex-1 bg-transparent text-sm outline-none w-full min-w-0 transition-colors ${step.checked
-                                    ? 'text-stone-400 dark:text-stone-500 line-through'
-                                    : 'theme-text-primary'
+                                ? 'text-stone-400 dark:text-stone-500 line-through'
+                                : 'theme-text-primary'
                                 }`}
                         />
                         <button

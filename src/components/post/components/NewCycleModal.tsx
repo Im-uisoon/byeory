@@ -80,7 +80,6 @@ const NewCycleModal: React.FC<Props> = ({
       onSuccess();
       onClose();
     } catch (error: any) {
-      console.error(error);
       const errMsg = error.message || "활동 생성 중 오류가 발생했습니다.";
       if (showConfirmModal) showConfirmModal("생성 실패", errMsg, "danger", undefined, true);
       else alert(errMsg);

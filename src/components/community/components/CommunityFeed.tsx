@@ -37,13 +37,6 @@ const CommunityFeed: React.FC<CommunityFeedProps> = ({ currentUserId, selectedTa
         try {
             const response = await getCommunities(page, 12, currentUserId, selectedTag || undefined);
 
-            console.log("Values from fetchPosts:", {
-                page,
-                last: response.last,
-                empty: response.empty,
-                contentLen: response.content?.length
-            });
-
             // ✨ Filter out private/draft posts
             const publicPosts = response.content.filter(p => p.isPublic);
 
@@ -152,7 +145,7 @@ const CommunityFeed: React.FC<CommunityFeedProps> = ({ currentUserId, selectedTa
                 </h3>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 w-full">
                 {posts.map((post, index) => (
                     <div key={`post-${post.postId || 'none'}-${index}`} className="w-full">
                         <CommunityCard

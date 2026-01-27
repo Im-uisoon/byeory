@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { WidgetWrapper } from '../Common';
 import { useWidgetStorage } from '../SDK';
 
@@ -29,7 +29,6 @@ export function WorryDoll({ gridSize }: WorryDollProps) {
 
     // Layout Flags
     const isSmall = w === 1 && h === 1;
-    const isTall = w === 1 && h >= 2;
     const isWide = w >= 2 && h === 1;
     const isLarge = w >= 2 && h >= 2;
 

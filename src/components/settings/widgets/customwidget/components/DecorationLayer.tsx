@@ -6,9 +6,10 @@ import { getSvgPathFromPoints } from '../utils';
 
 interface DecorationLayerProps {
     decorations?: WidgetDecoration[];
+    scale?: number; // ✨ NEW
 }
 
-const DecorationLayer: React.FC<DecorationLayerProps> = ({ decorations = [] }) => {
+const DecorationLayer: React.FC<DecorationLayerProps> = ({ decorations = [], scale = 1 }) => {
     if (!decorations || decorations.length === 0) return null;
 
     return (
@@ -24,27 +25,45 @@ const DecorationLayer: React.FC<DecorationLayerProps> = ({ decorations = [] }) =
                 `}
             </style>
             {decorations.map((deco) => {
-                // 🌟 Data recovery for corrupted 'type'
+                // 🌟 Data recovery and normalization
                 let safeType = deco.type;
                 if (typeof safeType === 'object' && (safeType as any).type) {
                     safeType = (safeType as any).type;
                 }
 
-                // Basic validation
-                if (!['blob', 'text', 'circle', 'square', 'star', 'shape'].includes(safeType)) {
-                    // return null; // Or render nothing for unknown types
-                }
+                // Aliases
+                const isText = safeType === 'text';
+                const defaultSize = isText ? 'auto' : 100;
+
+                // ✨ Apply Scale
+                const rawW = deco.w ?? deco.width ?? defaultSize;
+                const rawH = deco.h ?? deco.height ?? defaultSize;
+
+                const widthVal = typeof rawW === 'number' ? rawW * scale : rawW;
+                const heightVal = typeof rawH === 'number' ? rawH * scale : rawH;
+                const unit = deco.unit || 'px';
+
+                // ✨ Ensure Numbers for positions
+                const xVal = !isNaN(Number(deco.x)) ? Number(deco.x) : 0;
+                const yVal = !isNaN(Number(deco.y)) ? Number(deco.y) : 0;
+
+                const widthStyle = (widthVal as any) === 'auto' ? 'auto' : `${widthVal}${unit}`;
+                const heightStyle = (heightVal as any) === 'auto' ? 'auto' : `${heightVal}${unit}`;
+
+                const imageUrl = deco.imageUrl || deco.src;
+                const isShape = ['circle', 'square', 'star', 'shape', 'line'].includes(safeType);
+                const isImage = ['image', 'sticker'].includes(safeType) || !!imageUrl;
 
                 return (
                     <div
-                        key={deco.id}
-                        className="absolute"
+                        key={deco.id || Math.random().toString()}
+                        className={`absolute flex items-center justify-center transform-gpu ${isText ? 'whitespace-pre-wrap' : ''}`}
                         style={{
-                            left: `${deco.x}%`,
-                            top: `${deco.y}%`,
-                            width: `${deco.w}px`,
-                            height: `${deco.h}px`,
-                            transform: `translate(-50%, -50%) rotate(${deco.rotation || 0}deg)`,
+                            left: `${xVal}%`,
+                            top: `${yVal}%`,
+                            width: widthStyle,
+                            height: heightStyle,
+                            transform: `rotate(${deco.rotation || 0}deg)`,
                             opacity: deco.opacity,
                             zIndex: deco.zIndex || 0,
                             // 🌟 Animation Implementation
@@ -53,44 +72,51 @@ const DecorationLayer: React.FC<DecorationLayerProps> = ({ decorations = [] }) =
                             animationIterationCount: 'infinite',
                             animationTimingFunction: 'ease-in-out',
                             animationDelay: `${deco.animation?.delay || 0}s`,
-                            // 🌟 CSS Transition for Smooth Movement between Scenes
+                            // 🌟 CSS Transition
                             transition: 'all 0.5s ease-in-out',
+                            ...deco.style, // Apply custom styles from SQL (e.g. mixBlendMode, filter)
                         }}
                     >
-                        {safeType === 'blob' && !deco.mediaType && !deco.imageUrl ? (
-                            // Pure Color Blob (SVG) - Keep existing logic for best anti-aliasing on color blobs
+                        {/* 1. Text Type */}
+                        {isText && (
+                            <div style={{ pointerEvents: 'none', textAlign: 'center' }}>
+                                {deco.text}
+                            </div>
+                        )}
+
+                        {/* 2. Blob Type (SVG) */}
+                        {safeType === 'blob' && !deco.mediaType && !imageUrl && (
                             <svg width="100%" height="100%" viewBox="0 0 100 100" style={{ overflow: 'visible' }}>
                                 <path
                                     d={getSvgPathFromPoints(deco.points || [], 0.5, true)}
                                     fill={deco.color}
                                 />
                             </svg>
-                        ) : (
-                            // Image/Video or Shape - Use HTML Div for easy video masking
-                            // NOTE: Blob video needs clip-path: path(...). We need to normalize points to 0-100% for CSS clip-path?
-                            // Actually clip-path: path() accepts pixel values usually. Since we used viewbox 0 0 100 100, we might need relative clip-path or scale.
-                            // To be safe and simple: For now, let's keep the DIV background for Image/Shape and add Video child.
-                            // For Blob Video, it is tricky. Let's use Mask Image if possible or ForeignObject.
-                            // Let's rely on standard styles for now.
+                        )}
+
+                        {/* 3. Shape / Image Type */}
+                        {(isShape || isImage) && (
                             <div
                                 style={{
                                     width: '100%',
                                     height: '100%',
-                                    backgroundColor: (deco.mediaType === 'video' || deco.imageUrl) ? undefined : deco.color,
-                                    // Image Background (if image)
-                                    backgroundImage: (deco.mediaType !== 'video' && deco.imageUrl) ? `url(${deco.imageUrl})` : undefined,
-                                    backgroundSize: 'cover',
+                                    backgroundColor: (deco.mediaType === 'video' || isImage) ? undefined : deco.color,
+                                    // Image Background
+                                    backgroundImage: (deco.mediaType !== 'video' && imageUrl) ? `url(${imageUrl})` : undefined,
+                                    backgroundSize: 'contain', // Default to contain for stickers, cover for shapes? SQL uses backgroundSize in style usually, but here it is decoration
+                                    backgroundRepeat: 'no-repeat',
                                     backgroundPosition: 'center',
                                     borderRadius: (safeType === 'circle' || (safeType === 'shape' && (deco as any).shapeType === 'circle')) ? '50%' :
                                         (safeType === 'square' || (safeType === 'shape' && (deco as any).shapeType === 'square')) ? '4px' : '0%',
                                     clipPath: (safeType === 'star' || (safeType === 'shape' && (deco as any).shapeType === 'star'))
                                         ? 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)'
                                         : (safeType === 'blob' && deco.points)
-                                            ? `path('${getSvgPathFromPoints(deco.points, 0.5, true).replace(/,/g, ' ')}')` // CSS clip-path path() support
-                                            : undefined
+                                            ? `path('${getSvgPathFromPoints(deco.points, 0.5, true).replace(/,/g, ' ')}')`
+                                            : undefined,
+                                    ...deco.style // Allow override
                                 }}
                             >
-                                {/* 🌟 Video Element */}
+                                {/* Video Element */}
                                 {deco.mediaType === 'video' && deco.videoUrl && (
                                     <video
                                         src={deco.videoUrl}
@@ -108,14 +134,13 @@ const DecorationLayer: React.FC<DecorationLayerProps> = ({ decorations = [] }) =
                                             }
                                         }}
                                         onLoadedMetadata={(e) => {
-                                            // Start from designated time
                                             if (deco.videoStartTime) e.currentTarget.currentTime = deco.videoStartTime;
                                         }}
                                     />
                                 )}
                             </div>
                         )}
-                    </div> // End of decoration div
+                    </div>
                 );
             })}
         </div>
