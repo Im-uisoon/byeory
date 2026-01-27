@@ -3,8 +3,6 @@ import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Home, FileText, ShoppingBag, Users, Save, XCircle, MousePointerClick } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
-import { API_BASE_URL } from '../../../api/config';
-
 
 /* -------------------------------------------------------------------------------------------------
  * Menu Context & Provider Logic
@@ -75,7 +73,7 @@ export const MenuProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (!token) return;
 
             try {
-                const response = await fetch('${API_BASE_URL}/api/setting/menu', {
+                const response = await fetch('http://localhost:8080/api/setting/menu', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -108,7 +106,7 @@ export const MenuProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const token = localStorage.getItem('accessToken');
         if (token) {
             try {
-                await fetch('${API_BASE_URL}/api/setting/menu', {
+                await fetch('http://localhost:8080/api/setting/menu', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

@@ -6,9 +6,7 @@ import { STICKERS } from '../post/constants';
 import ConfirmationModal from '../common/ConfirmationModal';
 import CustomWidgetPreview from '../settings/widgets/customwidget/components/CustomWidgetPreview';
 
-import { API_BASE_URL as CONFIG_API_URL } from '../../api/config';
-const API_BASE_URL = `${CONFIG_API_URL}/api`;
-
+const API_BASE_URL = 'http://localhost:8080/api';
 
 interface ItemDetailModalProps {
     item: MarketItem;
