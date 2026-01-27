@@ -1,1 +1,0 @@
-import{z as e}from"./index-B0sSR65v.js";var t=e();function n(){return(0,t.jsx)(`div`,{className:`w-full h-full`})}export{n as TransparentSpacer};

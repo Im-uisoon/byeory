@@ -1,8 +1,0 @@
-import{Nt as e,jt as t,z as n}from"./index-B0sSR65v.js";import"./Shared-Dz5YLaFU.js";import{n as r}from"./SDK-DKpuPTfz.js";import{t as i}from"./Common-gSrtPrBf.js";var a=e(t(),1),o=n();const s=a.memo(function({gridSize:e}){let[t,n]=r(`candle-ison`,!0),a=e?.w||1;return(0,o.jsxs)(i,{className:`bg-gray-900 border-gray-800 p-2`,children:[(0,o.jsx)(`style`,{children:`
-          @keyframes flicker {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            25% { transform: scale(0.9, 1.1) skewX(2deg); opacity: 0.8; }
-            50% { transform: scale(1.1, 0.9) skewX(-2deg); opacity: 1; }
-            75% { transform: scale(0.95, 1.05); opacity: 0.85; }
-          }
-        `}),(0,o.jsx)(`div`,{className:`flex flex-row items-end justify-around h-full w-full gap-2 cursor-pointer`,onClick:()=>n(!t),children:Array.from({length:a}).map((n,r)=>(0,o.jsxs)(`div`,{className:`flex flex-col items-center justify-end h-full relative min-h-[60px] w-full max-w-[80px]`,children:[(0,o.jsx)(`div`,{className:`w-4 h-8 bg-gradient-to-t from-orange-500 via-yellow-400 to-white rounded-[50%] absolute blur-[2px] transition-opacity duration-500 ${t?`opacity-100`:`opacity-0`}`,style:{animation:t?`flicker ${1.5+r*.2}s infinite alternate`:`none`,top:`20%`},children:(0,o.jsx)(`div`,{className:`absolute inset-0 bg-yellow-200 blur-md opacity-40 animate-pulse`})}),(0,o.jsx)(`div`,{className:`w-0.5 h-3 bg-black/50 mt-8 mb-1 z-10`}),(0,o.jsx)(`div`,{className:`w-10 h-16 bg-gradient-to-r from-[#fdfbf7] to-[#e6dfd1] rounded-t-sm shadow-inner relative mt-1`,style:{height:e?.h&&e.h>1?`60%`:`40%`},children:(0,o.jsx)(`div`,{className:`w-full h-2 bg-gradient-to-r from-[#fdfbf7] to-[#e6dfd1] rounded-[50%] absolute -top-1`})})]},r))})]})});export{s as Candle};
