@@ -1,7 +1,10 @@
+```javascript
 import {
     ArrowLeft, Check, X, Type, Star, PenTool, RotateCcw, ChevronDown, Palette,
     ArrowUp, ArrowUpRight, ArrowRight, ArrowDownRight, ArrowDown, ArrowDownLeft, ArrowLeft as ArrowLeftIcon, ArrowUpLeft, Image as ImageIcon
 } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
+import { API_BASE_URL } from '../../../api/config';
 import { useState, useRef, useEffect } from 'react';
 
 interface PersonalSettingsProps {
@@ -77,9 +80,9 @@ const ColorPicker = ({ label, color, onChange, colors }: { label: string, color:
                     key={c}
                     onClick={() => onChange(c)}
                     className={`
-                        w-10 h-10 rounded-full shadow-sm transition-transform hover:scale-110 focus:outline-none border border-gray-200
-                        ${color === c ? 'ring-2 ring-offset-2 ring-gray-400' : ''}
-                    `}
+w - 10 h - 10 rounded - full shadow - sm transition - transform hover: scale - 110 focus: outline - none border border - gray - 200
+                        ${ color === c ? 'ring-2 ring-offset-2 ring-gray-400' : '' }
+`}
                     style={{ backgroundColor: c }}
                 />
             ))}
@@ -166,11 +169,11 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
         };
 
         try {
-            await fetch('http://localhost:8080/api/setting/theme', {
+            await fetch('${API_BASE_URL}/api/setting/theme', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${ token } `
                 },
                 body: JSON.stringify(payload)
             });
@@ -205,12 +208,12 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
 
     const handleSaveFont = () => {
         document.documentElement.style.setProperty('--font-family', fontFamily);
-        document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
+        document.documentElement.style.setProperty('--font-size', `${ fontSize } px`);
         localStorage.setItem('fontFamily', fontFamily);
-        localStorage.setItem('fontSize', `${fontSize}px`);
+        localStorage.setItem('fontSize', `${ fontSize } px`);
 
         const manualConfig = getManualConfig();
-        saveThemeToBackend(currentTheme, { family: fontFamily, size: `${fontSize}px` }, manualConfig);
+        saveThemeToBackend(currentTheme, { family: fontFamily, size: `${ fontSize } px` }, manualConfig);
     };
 
     const handleResetFont = () => {
@@ -229,21 +232,21 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
         const tr = parseInt(manualTextColor.slice(1, 3), 16);
         const tg = parseInt(manualTextColor.slice(3, 5), 16);
         const tb = parseInt(manualTextColor.slice(5, 7), 16);
-        document.documentElement.style.setProperty('--manual-text-color', `${tr}, ${tg}, ${tb}`);
-        document.documentElement.style.setProperty('--manual-text-intensity', `${manualTextIntensity / 100}`);
+        document.documentElement.style.setProperty('--manual-text-color', `${ tr }, ${ tg }, ${ tb } `);
+        document.documentElement.style.setProperty('--manual-text-intensity', `${ manualTextIntensity / 100 } `);
         localStorage.setItem('manualTextColor', manualTextColor);
         localStorage.setItem('manualTextIntensity', String(manualTextIntensity));
 
         // Apply Background Settings
         if (manualBgImage) {
-            document.documentElement.style.setProperty('--manual-gradient', `url(${manualBgImage})`);
+            document.documentElement.style.setProperty('--manual-gradient', `url(${ manualBgImage })`);
             document.documentElement.style.setProperty('--manual-bg-intensity', '0');
             localStorage.setItem('manualBgImage', manualBgImage);
 
             document.documentElement.style.setProperty('--manual-bg-size', manualBgSize === 'repeat' ? 'auto' : manualBgSize);
             document.documentElement.style.setProperty('--manual-bg-repeat', manualBgSize === 'repeat' ? 'repeat' : 'no-repeat');
         } else if (isGradient) {
-            document.documentElement.style.setProperty('--manual-gradient', `linear-gradient(${gradientDirection}, ${gradientStartColor}, ${gradientEndColor})`);
+            document.documentElement.style.setProperty('--manual-gradient', `linear - gradient(${ gradientDirection }, ${ gradientStartColor }, ${ gradientEndColor })`);
             document.documentElement.style.setProperty('--manual-bg-intensity', '1');
             document.documentElement.style.setProperty('--manual-bg-size', 'cover');
             document.documentElement.style.setProperty('--manual-bg-repeat', 'no-repeat');
@@ -252,8 +255,8 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
             const r = parseInt(manualBgColor.slice(1, 3), 16);
             const g = parseInt(manualBgColor.slice(3, 5), 16);
             const b = parseInt(manualBgColor.slice(5, 7), 16);
-            document.documentElement.style.setProperty('--manual-bg-color', `${r}, ${g}, ${b}`);
-            document.documentElement.style.setProperty('--manual-bg-intensity', `${manualBgIntensity / 100}`);
+            document.documentElement.style.setProperty('--manual-bg-color', `${ r }, ${ g }, ${ b } `);
+            document.documentElement.style.setProperty('--manual-bg-intensity', `${ manualBgIntensity / 100 } `);
             document.documentElement.style.setProperty('--manual-bg-size', 'cover');
             document.documentElement.style.setProperty('--manual-bg-repeat', 'no-repeat');
         }
@@ -262,7 +265,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
         const cr = parseInt(manualCardColor.slice(1, 3), 16);
         const cg = parseInt(manualCardColor.slice(3, 5), 16);
         const cb = parseInt(manualCardColor.slice(5, 7), 16);
-        document.documentElement.style.setProperty('--manual-card-color', `${cr}, ${cg}, ${cb}`);
+        document.documentElement.style.setProperty('--manual-card-color', `${ cr }, ${ cg }, ${ cb } `);
         localStorage.setItem('manualCardColor', manualCardColor);
 
         // Apply Button Settings
@@ -286,7 +289,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
         // Save to Backend
         const manualConfig = getManualConfig();
 
-        saveThemeToBackend('manual', { family: fontFamily, size: `${fontSize}px` }, manualConfig);
+        saveThemeToBackend('manual', { family: fontFamily, size: `${ fontSize } px` }, manualConfig);
     };
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -356,30 +359,33 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
             <div className="flex space-x-1 theme-bg-card-secondary p-1 rounded-xl mb-6">
                 <button
                     onClick={() => setActiveTab('font')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'font'
-                        ? 'theme-bg-card theme-text-primary shadow-sm'
-                        : 'theme-text-secondary hover:bg-black/5'
-                        }`}
+                    className={`flex - 1 flex items - center justify - center gap - 2 py - 2.5 text - sm font - medium rounded - lg transition - all ${
+    activeTab === 'font'
+    ? 'theme-bg-card theme-text-primary shadow-sm'
+    : 'theme-text-secondary hover:bg-black/5'
+} `}
                 >
                     <Type className="w-4 h-4" />
                     폰트
                 </button>
                 <button
                     onClick={() => setActiveTab('recommended')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'recommended'
-                        ? 'theme-bg-card theme-text-primary shadow-sm'
-                        : 'theme-text-secondary hover:bg-black/5'
-                        }`}
+                    className={`flex - 1 flex items - center justify - center gap - 2 py - 2.5 text - sm font - medium rounded - lg transition - all ${
+    activeTab === 'recommended'
+    ? 'theme-bg-card theme-text-primary shadow-sm'
+    : 'theme-text-secondary hover:bg-black/5'
+} `}
                 >
                     <Star className="w-4 h-4" />
                     추천 테마
                 </button>
                 <button
                     onClick={() => setActiveTab('manual')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'manual'
-                        ? 'theme-bg-card theme-text-primary shadow-sm'
-                        : 'theme-text-secondary hover:bg-black/5'
-                        }`}
+                    className={`flex - 1 flex items - center justify - center gap - 2 py - 2.5 text - sm font - medium rounded - lg transition - all ${
+    activeTab === 'manual'
+    ? 'theme-bg-card theme-text-primary shadow-sm'
+    : 'theme-text-secondary hover:bg-black/5'
+} `}
                 >
                     <PenTool className="w-4 h-4" />
                     수동 테마
@@ -392,7 +398,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                     <div className="space-y-6">
                         {/* Preview Box */}
                         <div className="relative theme-bg-card-secondary rounded-xl p-8 min-h-[120px] flex flex-col justify-center transition-all duration-200"
-                            style={{ fontFamily: fontFamily, fontSize: `${fontSize}px` }}>
+                            style={{ fontFamily: fontFamily, fontSize: `${ fontSize } px` }}>
                             <p className="theme-text-primary font-bold mb-2">다람쥐 헌 쳇바퀴에 타고파</p>
                             <p className="theme-text-secondary">The quick brown fox jumps over the lazy dog.</p>
                             {/* "미리보기" Label Positioned Bottom Right inside the box */}
@@ -410,7 +416,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     className="w-full flex items-center justify-between p-3 rounded-lg theme-border border theme-bg-card theme-text-primary hover:bg-black/5 transition-colors"
                                 >
                                     <span style={{ fontFamily: fontFamily }}>{getFontName(fontFamily)}</span>
-                                    <ChevronDown className={`w-4 h-4 transition-transform ${isFontDropdownOpen ? 'rotate-180' : ''}`} />
+                                    <ChevronDown className={`w - 4 h - 4 transition - transform ${ isFontDropdownOpen ? 'rotate-180' : '' } `} />
                                 </button>
 
                                 {isFontDropdownOpen && (
@@ -423,9 +429,9 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                                     setIsFontDropdownOpen(false);
                                                 }}
                                                 className={`
-                                                    w-full flex items-center justify-between p-3 text-left hover:bg-black/5 transition-colors
-                                                    ${fontFamily === font.value ? 'bg-black/5 theme-text-primary font-bold' : 'theme-text-secondary'}
-                                                `}
+w - full flex items - center justify - between p - 3 text - left hover: bg - black / 5 transition - colors
+                                                    ${ fontFamily === font.value ? 'bg-black/5 theme-text-primary font-bold' : 'theme-text-secondary' }
+`}
                                             >
                                                 <span style={{ fontFamily: font.value }}>{font.name}</span>
                                                 {fontFamily === font.value && <Check className="w-4 h-4 theme-text-primary" />}
@@ -488,15 +494,15 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     borderColor: currentTheme === theme.id ? 'var(--text-primary)' : 'var(--border-color)'
                                 }}
                                 className={`
-                                    relative flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all duration-200
-                                    theme-bg-card
-                                    ${currentTheme === theme.id ? 'bg-black/5' : 'hover:bg-black/5'}
-                                `}
+                                    relative flex flex - col items - center justify - center p - 3 rounded - xl border - 2 transition - all duration - 200
+theme - bg - card
+                                    ${ currentTheme === theme.id ? 'bg-black/5' : 'hover:bg-black/5' }
+`}
                             >
                                 {/* Preview Circle */}
-                                <div className={`w-10 h-10 rounded-full mb-2 shadow-inner ${theme.previewClass}`} />
+                                <div className={`w - 10 h - 10 rounded - full mb - 2 shadow - inner ${ theme.previewClass } `} />
 
-                                <span className={`text-sm font-medium ${currentTheme === theme.id ? 'theme-text-primary' : 'theme-text-secondary'}`}>
+                                <span className={`text - sm font - medium ${ currentTheme === theme.id ? 'theme-text-primary' : 'theme-text-secondary' } `}>
                                     {theme.name}
                                 </span>
 
@@ -516,28 +522,31 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                         <div className="flex p-1 theme-bg-card-secondary rounded-lg mb-4">
                             <button
                                 onClick={() => setManualSubTab('text')}
-                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${manualSubTab === 'text'
-                                    ? 'theme-bg-card theme-text-primary shadow-sm'
-                                    : 'theme-text-secondary hover:bg-black/5'
-                                    }`}
+                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all ${
+    manualSubTab === 'text'
+    ? 'theme-bg-card theme-text-primary shadow-sm'
+    : 'theme-text-secondary hover:bg-black/5'
+} `}
                             >
                                 Text
                             </button>
                             <button
                                 onClick={() => setManualSubTab('colors')}
-                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${manualSubTab === 'colors'
-                                    ? 'theme-bg-card theme-text-primary shadow-sm'
-                                    : 'theme-text-secondary hover:bg-black/5'
-                                    }`}
+                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all ${
+    manualSubTab === 'colors'
+    ? 'theme-bg-card theme-text-primary shadow-sm'
+    : 'theme-text-secondary hover:bg-black/5'
+} `}
                             >
                                 Colors & Buttons
                             </button>
                             <button
                                 onClick={() => setManualSubTab('image')}
-                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${manualSubTab === 'image'
-                                    ? 'theme-bg-card theme-text-primary shadow-sm'
-                                    : 'theme-text-secondary hover:bg-black/5'
-                                    }`}
+                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all ${
+    manualSubTab === 'image'
+    ? 'theme-bg-card theme-text-primary shadow-sm'
+    : 'theme-text-secondary hover:bg-black/5'
+} `}
                             >
                                 Image
                             </button>
@@ -551,7 +560,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     className="relative rounded-xl p-8 min-h-[120px] flex flex-col justify-center transition-all duration-200 shadow-inner theme-bg-card-secondary"
                                 >
                                     <p className="font-bold mb-2 text-xl" style={{
-                                        color: `rgba(${parseInt(manualTextColor.slice(1, 3), 16)}, ${parseInt(manualTextColor.slice(3, 5), 16)}, ${parseInt(manualTextColor.slice(5, 7), 16)}, ${manualTextIntensity / 100})`
+                                        color: `rgba(${ parseInt(manualTextColor.slice(1, 3), 16)}, ${ parseInt(manualTextColor.slice(3, 5), 16) }, ${ parseInt(manualTextColor.slice(5, 7), 16) }, ${ manualTextIntensity / 100 })`
                                     }}>
                                         다람쥐 헌 쳇바퀴에 타고파
                                     </p>
@@ -596,8 +605,8 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     className="relative rounded-xl p-8 min-h-[120px] flex flex-col justify-between transition-all duration-200 shadow-inner"
                                     style={{
                                         background: isGradient
-                                            ? `linear-gradient(${gradientDirection}, ${gradientStartColor}, ${gradientEndColor})`
-                                            : `rgba(${parseInt(manualBgColor.slice(1, 3), 16)}, ${parseInt(manualBgColor.slice(3, 5), 16)}, ${parseInt(manualBgColor.slice(5, 7), 16)}, ${manualBgIntensity / 100})`,
+                                            ? `linear - gradient(${ gradientDirection }, ${ gradientStartColor }, ${ gradientEndColor })`
+                                            : `rgba(${ parseInt(manualBgColor.slice(1, 3), 16)}, ${ parseInt(manualBgColor.slice(3, 5), 16) }, ${ parseInt(manualBgColor.slice(5, 7), 16) }, ${ manualBgIntensity / 100 })`,
                                         borderColor: isGradient ? gradientEndColor : manualBgColor
                                     }}
                                 >
@@ -629,15 +638,15 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                     <button
                                         onClick={() => setIsGradient(!isGradient)}
                                         className={`
-                                            relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none
-                                            ${isGradient ? 'bg-blue-600' : 'bg-gray-200'}
-                                        `}
+                                            relative inline - flex h - 6 w - 11 items - center rounded - full transition - colors focus: outline - none
+                                            ${ isGradient ? 'bg-blue-600' : 'bg-gray-200' }
+`}
                                     >
                                         <span
                                             className={`
-                                                inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                                                ${isGradient ? 'translate-x-6' : 'translate-x-1'}
-                                            `}
+inline - block h - 4 w - 4 transform rounded - full bg - white transition - transform
+                                                ${ isGradient ? 'translate-x-6' : 'translate-x-1' }
+`}
                                         />
                                     </button>
                                 </div>
@@ -680,11 +689,13 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                                         key={dir.value}
                                                         onClick={() => setGradientDirection(dir.value)}
                                                         className={`
-                                                            flex items-center justify-center p-2 rounded-lg border transition-all
-                                                            ${gradientDirection === dir.value
-                                                                ? 'theme-bg-card theme-border border-blue-500 text-blue-500 shadow-sm'
-                                                                : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'}
-                                                        `}
+                                                            flex items - center justify - center p - 2 rounded - lg border transition - all
+                                                            ${
+    gradientDirection === dir.value
+    ? 'theme-bg-card theme-border border-blue-500 text-blue-500 shadow-sm'
+    : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'
+}
+`}
                                                     >
                                                         <dir.icon className="w-5 h-5" />
                                                     </button>
@@ -752,7 +763,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                                 <div
                                                     className="w-full h-full transition-all duration-300"
                                                     style={{
-                                                        backgroundImage: `url(${manualBgImage})`,
+                                                        backgroundImage: `url(${ manualBgImage })`,
                                                         backgroundSize: manualBgSize === 'repeat' ? '25%' : 'cover',
                                                         backgroundRepeat: manualBgSize === 'repeat' ? 'repeat' : 'no-repeat',
                                                         backgroundPosition: 'center'
@@ -793,19 +804,21 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
                                                 <div className="flex gap-4 px-2">
                                                     <button
                                                         onClick={() => setManualBgSize('cover')}
-                                                        className={`flex-1 py-3 text-sm font-medium rounded-xl border transition-all ${manualBgSize === 'cover'
-                                                            ? 'theme-bg-card theme-border border-blue-500 text-blue-500 ring-2 ring-blue-500 ring-offset-2'
-                                                            : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'
-                                                            }`}
+                                                        className={`flex - 1 py - 3 text - sm font - medium rounded - xl border transition - all ${
+    manualBgSize === 'cover'
+    ? 'theme-bg-card theme-border border-blue-500 text-blue-500 ring-2 ring-blue-500 ring-offset-2'
+    : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'
+} `}
                                                     >
                                                         화면 채우기 (Cover)
                                                     </button>
                                                     <button
                                                         onClick={() => setManualBgSize('repeat')}
-                                                        className={`flex-1 py-3 text-sm font-medium rounded-xl border transition-all ${manualBgSize === 'repeat'
-                                                            ? 'theme-bg-card theme-border border-blue-500 text-blue-500 ring-2 ring-blue-500 ring-offset-2'
-                                                            : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'
-                                                            }`}
+                                                        className={`flex - 1 py - 3 text - sm font - medium rounded - xl border transition - all ${
+    manualBgSize === 'repeat'
+    ? 'theme-bg-card theme-border border-blue-500 text-blue-500 ring-2 ring-blue-500 ring-offset-2'
+    : 'theme-bg-card-secondary border-transparent theme-text-secondary hover:bg-black/5'
+} `}
                                                     >
                                                         반복 (Repeat)
                                                     </button>

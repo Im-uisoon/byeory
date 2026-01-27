@@ -3,6 +3,8 @@ import { ArrowLeft, CreditCard, Wallet, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 import { useIsMobile } from '../../hooks';
+import { API_BASE_URL } from '../../api/config';
+
 
 const ChargePage: React.FC = () => {
     const navigate = useNavigate();
@@ -60,7 +62,7 @@ const ChargePage: React.FC = () => {
             onConfirm: async () => {
                 setModalConfig(prev => ({ ...prev, isOpen: false }));
                 try {
-                    const response = await fetch('http://localhost:8080/api/payment/ready', {
+                    const response = await fetch('${API_BASE_URL}/api/payment/ready', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

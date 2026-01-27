@@ -6,7 +6,10 @@ import { getMyWidgets } from './customwidget/widgetApi.ts';
 import CustomWidgetPreview from './customwidget/components/CustomWidgetPreview.tsx';
 
 // 백엔드 주소 상수 정의
-const BASE_URL = 'http://localhost:8080';
+import { API_BASE_URL } from '../../../api/config';
+
+const BASE_URL = API_BASE_URL;
+
 const getAuthHeaders = () => {
     const token = localStorage.getItem('accessToken');
     return {
