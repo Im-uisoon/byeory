@@ -7,6 +7,7 @@ import type { Todo, Post } from '../../types/todo';
 import { useSharedTodo } from '../../components/todo/useSharedTodo';
 import { useIsMobile } from '../../hooks'; // ✨
 import FloatingSettingsPanel from '../../components/dashboard/components/FloatingSettingsPanel'; // ✨
+import { API_BASE_URL } from '../../api/config';
 
 type ViewMode = 'daily' | 'weekly' | 'monthly';
 type AppMode = 'todo' | 'post';
@@ -34,7 +35,7 @@ const TodoPage: React.FC = () => {
             const token = localStorage.getItem('accessToken');
             const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-            const response = await fetch(`http://localhost:8080/api/posts/summary?year=${year}&month=${month}`, {
+            const response = await fetch(`${API_BASE_URL}/api/posts/summary?year=${year}&month=${month}`, {
                 headers
             });
 

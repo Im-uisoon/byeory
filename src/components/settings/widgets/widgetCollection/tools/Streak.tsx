@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Flame } from 'lucide-react';
 import { WidgetWrapper } from '../../Shared';
 import axios from 'axios';
+import { API_BASE_URL } from '../../../../../api/config';
 
 interface StreakWidgetProps {
     gridSize?: { w: number; h: number };
@@ -18,7 +19,7 @@ export const StreakWidget = React.memo(function StreakWidget({ gridSize }: Strea
                 const token = localStorage.getItem("accessToken");
                 if (!token) return;
 
-                const response = await axios.get("http://localhost:8080/api/user/profile", {
+                const response = await axios.get(`${API_BASE_URL}/api/user/profile`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

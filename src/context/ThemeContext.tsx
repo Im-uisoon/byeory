@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { applyThemeStyles, saveThemeToLocalStorage } from '../utils/theme';
+import { API_BASE_URL } from '../api/config';
 
 interface ThemeContextType {
     theme: string;
@@ -33,7 +34,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/setting/all', {
+            const response = await fetch(`${API_BASE_URL}/api/setting/all`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -64,7 +65,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
             // Explicitly fetch page setting as requested
             try {
-                const pageRes = await fetch('http://localhost:8080/api/setting/page', {
+                const pageRes = await fetch(`${API_BASE_URL}/api/setting/page`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });

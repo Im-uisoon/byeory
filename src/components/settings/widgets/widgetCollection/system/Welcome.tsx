@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../../context/AuthContext';
 import { User, Palette } from 'lucide-react';
+import { API_BASE_URL } from '../../../../../api/config';
 
 export function WelcomeWidget({ gridSize, isStickerMode }: { gridSize?: { w: number; h: number }; isStickerMode?: boolean }) {
     const { user } = useAuth();
@@ -18,7 +19,7 @@ export function WelcomeWidget({ gridSize, isStickerMode }: { gridSize?: { w: num
                 const token = localStorage.getItem('accessToken');
                 if (!token) return;
 
-                const response = await fetch('http://localhost:8080/api/user/profile', {
+                const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 

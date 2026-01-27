@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
 import type { Todo } from '../types/todo';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from '../api/config';
 
 interface TodoContextType {
     todos: Todo[];
@@ -12,9 +13,11 @@ interface TodoContextType {
 
 const TodoContext = createContext<TodoContextType | undefined>(undefined);
 
-const API_BASE_URL = 'http://localhost:8080/api/todos';
+
 
 export const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const TODO_API_URL = `${API_BASE_URL}/api/todos`;
+
     const [todos, setTodos] = useState<Todo[]>([]);
     const { isLoggedIn } = useAuth(); // Optional: Refetch when login state changes
 
@@ -31,7 +34,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         try {
-            const response = await fetch(API_BASE_URL, {
+            const response = await fetch(TODO_API_URL, {
                 headers: { ...getAuthHeader() }
             });
             if (response.ok) {
@@ -51,7 +54,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const addTodo = async (newTodo: Omit<Todo, 'id'>) => {
         try {
-            const response = await fetch(API_BASE_URL, {
+            const response = await fetch(TODO_API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,7 +91,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
             const updatedTodo = { ...currentTodo, ...updates };
 
-            const response = await fetch(`${API_BASE_URL}/${id}`, {
+            const response = await fetch(`${TODO_API_URL}/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -113,7 +116,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setTodos(prev => prev.filter(todo => todo.id !== id));
 
         try {
-            const response = await fetch(`${API_BASE_URL}/${id}`, {
+            const response = await fetch(`${TODO_API_URL}/${id}`, {
                 method: 'DELETE',
                 headers: { ...getAuthHeader() }
             });

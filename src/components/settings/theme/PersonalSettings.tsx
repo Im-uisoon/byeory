@@ -4,6 +4,8 @@ import {
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
+import { API_BASE_URL } from '../../../api/config';
+
 interface PersonalSettingsProps {
     onBack: () => void;
     onClose: () => void;
@@ -166,7 +168,7 @@ export default function PersonalSettings({ onBack, onClose, currentTheme, onThem
         };
 
         try {
-            await fetch('http://localhost:8080/api/setting/theme', {
+            await fetch(`${API_BASE_URL}/api/setting/theme`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

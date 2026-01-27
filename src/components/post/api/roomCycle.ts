@@ -1,4 +1,5 @@
 import { cleanId } from "./index";
+import { API_BASE_URL } from "../../../api/config";
 
 // --- Types ---
 
@@ -47,7 +48,7 @@ const getAuthHeaders = () => {
   };
 };
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = API_BASE_URL;
 
 // --- API Functions ---
 

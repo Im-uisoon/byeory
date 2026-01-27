@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useCredits } from '../context/CreditContext';
 import { STICKERS } from '../components/post/constants';
+import { API_BASE_URL as CONFIG_API_BASE_URL } from '../api/config';
 
-const API_BASE_URL = 'http://localhost:8080/api/market';
+const API_BASE_URL = `${CONFIG_API_BASE_URL}/api/market`;
 
 export interface MarketItem {
     id: string;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, Loader2 } from 'lucide-react';
 import { useCredits } from '../../context/CreditContext';
+import { API_BASE_URL } from '../../api/config';
 
 const PaymentSuccessPage: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -28,7 +29,7 @@ const PaymentSuccessPage: React.FC = () => {
 
             try {
                 const token = localStorage.getItem('accessToken');
-                const response = await fetch('http://localhost:8080/api/payment/approve', {
+                const response = await fetch(`${API_BASE_URL}/api/payment/approve`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

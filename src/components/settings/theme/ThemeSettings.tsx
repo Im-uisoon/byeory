@@ -1,6 +1,7 @@
 import { ArrowLeft, Check, Moon, Sun, Monitor, X, Settings as SettingsIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import PersonalSettings from './PersonalSettings';
+import { API_BASE_URL } from '../../../api/config';
 
 interface ThemeSettingsProps {
     onBack: () => void;
@@ -28,7 +29,7 @@ export default function ThemeSettings({ onBack, onClose }: ThemeSettingsProps) {
                     const fontFamily = localStorage.getItem('fontFamily') || "'Noto Sans KR', sans-serif";
                     const fontSize = localStorage.getItem('fontSize') || "16px";
 
-                    await fetch('http://localhost:8080/api/setting/theme', {
+                    await fetch(`${API_BASE_URL}/api/setting/theme`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../../api/config';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WidgetWrapper } from '../../Shared';
@@ -31,7 +32,7 @@ export const MoodAnalytics = ({ className, style, gridSize, isStickerMode }: Com
         }
 
         try {
-            const response = await fetch("http://localhost:8080/api/persona", {
+            const response = await fetch(`${API_BASE_URL}/api/persona`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

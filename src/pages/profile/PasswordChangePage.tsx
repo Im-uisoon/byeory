@@ -3,6 +3,7 @@ import { ArrowLeft, Lock, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-reac
 import { useNavigate } from 'react-router-dom';
 import Navigation from '../../components/header/Navigation';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
+import { API_BASE_URL } from '../../api/config';
 
 const PasswordChangePage: React.FC = () => {
     const navigate = useNavigate();
@@ -74,7 +75,7 @@ const PasswordChangePage: React.FC = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8080/auth/password', {
+            const response = await fetch(`${API_BASE_URL}/auth/password`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

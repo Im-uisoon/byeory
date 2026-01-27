@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL as CONFIG_API_BASE_URL } from '../api/config';
 
-const API_BASE_URL = 'http://localhost:8080/api/user';
+const API_BASE_URL = `${CONFIG_API_BASE_URL}/api/user`;
 const SESSION_STORAGE_KEY = 'session_playtime_seconds';
 
 export const usePlayTime = () => {

@@ -5,6 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import GoogleLoginButton from '../../components/auth/GoogleLoginButton';
 import NaverLoginButton from '../../components/auth/NaverLoginButton';
 
+import { API_BASE_URL } from '../../api/config';
+
 function JoinPage() {
     const navigate = useNavigate();
     const { socialLogin, signup } = useAuth();
@@ -28,7 +30,7 @@ function JoinPage() {
 
         setIsSending(true);
         try {
-            const res = await fetch('http://localhost:8080/auth/email/send', {
+            const res = await fetch(`${API_BASE_URL}/auth/email/send`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -57,7 +59,7 @@ function JoinPage() {
             return;
         }
         try {
-            const res = await fetch('http://localhost:8080/auth/email/check', {
+            const res = await fetch(`${API_BASE_URL}/auth/email/check`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, authNum: verificationCode })

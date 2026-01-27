@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { API_BASE_URL as CONFIG_API_BASE_URL } from '../../../../api/config';
 
-const API_BASE_URL = 'http://localhost:8080/api/widgets';
+const API_BASE_URL = `${CONFIG_API_BASE_URL}/api/widgets`;
 
 
 // 🌟 토큰 가져오는 함수 (로그인 시 저장한 키 이름이 'accessToken'이라고 가정)
