@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import ForcedPinInputModal from '../components/security/ForcedPinInputModal';
 import { authService } from '../services/authService';
 import { pinService } from '../services/pinService';
+import { API_BASE_URL } from '../api/config';
 
 interface AuthContextType {
     isLoggedIn: boolean;

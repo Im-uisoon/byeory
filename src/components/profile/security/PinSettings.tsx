@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Lock, ChevronDown, Shield, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import PinInputModal from '../../security/PinInputModal';
+import { API_BASE_URL } from '../../../api/config';
 
 interface PinSettingsProps {
     confirmModal: (config: {
@@ -81,7 +82,7 @@ const PinSettings: React.FC<PinSettingsProps> = ({ confirmModal, closeConfirmMod
 
         try {
             if (pinModalConfig.mode === 'REGISTER') {
-                const response = await fetch('http://localhost:8080/api/pin/register', {
+                const response = await fetch('${API_BASE_URL}/api/pin/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -99,7 +100,7 @@ const PinSettings: React.FC<PinSettingsProps> = ({ confirmModal, closeConfirmMod
                 }
 
             } else if (pinModalConfig.mode === 'VERIFY_OLD') {
-                const response = await fetch('http://localhost:8080/api/pin/verify', {
+                const response = await fetch('${API_BASE_URL}/api/pin/verify', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -113,7 +114,7 @@ const PinSettings: React.FC<PinSettingsProps> = ({ confirmModal, closeConfirmMod
                     openPinModal('SET_NEW');
                     return null;
                 } else {
-                    const statusRes = await fetch('http://localhost:8080/api/pin/status', {
+                    const statusRes = await fetch('${API_BASE_URL}/api/pin/status', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (statusRes.ok) {
@@ -134,7 +135,7 @@ const PinSettings: React.FC<PinSettingsProps> = ({ confirmModal, closeConfirmMod
 
             } else if (pinModalConfig.mode === 'CONFIRM_NEW') {
                 if (pin === tempNewPin) {
-                    const response = await fetch('http://localhost:8080/api/pin/register', {
+                    const response = await fetch('${API_BASE_URL}/api/pin/register', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -154,7 +155,7 @@ const PinSettings: React.FC<PinSettingsProps> = ({ confirmModal, closeConfirmMod
                     return 'PIN 번호가 일치하지 않습니다.';
                 }
             } else if (pinModalConfig.mode === 'DISABLE') {
-                const verifyResponse = await fetch('http://localhost:8080/api/pin/verify', {
+                const verifyResponse = await fetch('${API_BASE_URL}/api/pin/verify', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -165,7 +166,7 @@ const PinSettings: React.FC<PinSettingsProps> = ({ confirmModal, closeConfirmMod
 
                 const isCorrect = await verifyResponse.json();
                 if (isCorrect === true) {
-                    const deleteResponse = await fetch('http://localhost:8080/api/pin', {
+                    const deleteResponse = await fetch('${API_BASE_URL}/api/pin', {
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -178,7 +179,7 @@ const PinSettings: React.FC<PinSettingsProps> = ({ confirmModal, closeConfirmMod
                         return 'PIN 해제에 실패했습니다.';
                     }
                 } else {
-                    const statusRes = await fetch('http://localhost:8080/api/pin/status', {
+                    const statusRes = await fetch('${API_BASE_URL}/api/pin/status', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (statusRes.ok) {

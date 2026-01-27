@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, Calendar, Smile, Phone, FileText, Camera, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../../api/config';
 import Navigation from '../../../components/header/Navigation';
 import { uploadImageToSupabase, deleteOldImage } from "../../../components/post/api";
 import ConfirmationModal from '../../../components/common/ConfirmationModal';
@@ -58,7 +59,7 @@ const ProfileEditPage: React.FC = () => {
             }
 
             try {
-                const response = await fetch('http://localhost:8080/api/user/profile', {
+                const response = await fetch('${API_BASE_URL}/api/user/profile', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

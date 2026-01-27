@@ -1,6 +1,6 @@
 import type { WidgetInstance } from '../components/settings/widgets/type';
+import { API_BASE_URL } from '../api/config';
 
-const API_BASE_URL = 'http://localhost:8080';
 
 const getHeaders = () => {
     const token = localStorage.getItem('accessToken');

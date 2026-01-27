@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080';
+import { API_BASE_URL } from '../api/config';
 
 export interface SocialLoginData {
     email: string;
@@ -14,6 +14,13 @@ export interface SocialLoginData {
 }
 
 export const authService = {
+    // 1. 이메일 중복 체크
+    checkEmail: async (email: string) => {
+        const response = await fetch(`${API_BASE_URL}/api/auth/check-email?email=${email}`);
+        if (!response.ok) throw new Error('Failed to check email');
+        return response.json();
+    },
+
     checkPinStatus: async (token: string) => {
         const res = await fetch(`${API_BASE_URL}/api/pin/status`, {
             headers: { 'Authorization': `Bearer ${token}` }

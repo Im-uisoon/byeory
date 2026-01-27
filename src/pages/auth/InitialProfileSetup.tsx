@@ -10,6 +10,8 @@ import {
   FileText,
 } from "lucide-react";
 import { uploadImageToSupabase } from "../../components/post/api";
+import { API_BASE_URL } from '../../api/config';
+
 
 const InitialProfileSetup: React.FC = () => {
   const navigate = useNavigate();
@@ -143,7 +145,7 @@ const InitialProfileSetup: React.FC = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/user/profile", {
+      const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

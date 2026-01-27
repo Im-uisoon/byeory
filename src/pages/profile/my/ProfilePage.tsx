@@ -13,6 +13,8 @@ import ProfileStats from "../../../components/profile/ProfileStats";
 import ProfileMenu from "../../../components/profile/ProfileMenu";
 import PinSettings from "../../../components/profile/security/PinSettings";
 import TagSettings from "../../../components/profile/security/TagSettings";
+import { API_BASE_URL } from '../../../api/config';
+
 
 function ProfilePage() {
   const { logout } = useAuth();
@@ -75,7 +77,7 @@ function ProfilePage() {
       }
 
       try {
-        const response = await fetch("http://localhost:8080/api/user/profile", {
+        const response = await fetch("${API_BASE_URL}/api/user/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

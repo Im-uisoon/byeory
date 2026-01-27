@@ -1,8 +1,22 @@
-const API_BASE_URL = 'http://localhost:8080/api/pin';
+import { API_BASE_URL } from '../api/config';
 
 export const pinService = {
+    registerPin: async (pin: string) => {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/api/pin/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ pin })
+        });
+        if (!response.ok) throw response;
+        return response.json();
+    },
+
     verifyPin: async (token: string, pin: string) => {
-        const response = await fetch(`${API_BASE_URL}/verify`, {
+        const response = await fetch(`${API_BASE_URL}/api/pin/verify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Sparkles, RefreshCw, Calendar } from "lucide-react";
 import Navigation from '../../../components/header/Navigation';
 import ConfirmationModal from "../../../components/common/ConfirmationModal";
+import { API_BASE_URL } from '../../../api/config';
+
 
 // --- 타입 정의 (JSON 구조에 맞춤) ---
 interface MoodItem {
@@ -173,7 +175,7 @@ function AnalysisPage() {
     if (!token) return;
 
     try {
-      const response = await fetch("http://localhost:8080/api/persona", {
+      const response = await fetch("${API_BASE_URL}/api/persona", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -227,7 +229,7 @@ function AnalysisPage() {
     setAnalyzing(true);
 
     // 파라미터 구성
-    let url = "http://localhost:8080/api/persona/analyze";
+    let url = "${API_BASE_URL}/api/persona/analyze";
     if (filterMode === "MONTH") {
       const [y, m] = selectedDate.split("-");
       url += `?year=${y}&month=${m}`;
