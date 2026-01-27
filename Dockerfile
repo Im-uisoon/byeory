@@ -2,8 +2,8 @@
 # Build Stage
 FROM node:20 AS build
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json ./
+RUN npm install
 COPY . .
 
 # Build-time environment variables
