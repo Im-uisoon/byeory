@@ -1,0 +1,1 @@
+import{z as e}from"./index-XppDkQXE.js";var t=e();function n(){return(0,t.jsx)(`div`,{className:`w-full h-full`})}export{n as TransparentSpacer};
