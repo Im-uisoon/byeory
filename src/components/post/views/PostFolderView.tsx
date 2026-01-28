@@ -296,19 +296,10 @@ const PostFolderView: React.FC<Props> = ({ albumId, allPosts, onPostClick, onSta
     }
 
 
-    // ✨ Handle Post Click for Animation (Now just direct open)
+    // ✨ Handle Post Click - Navigate to single post read mode
     const handleGridPostClick = async (post: PostData) => {
-        // Find index
-        const idx = displayedPosts.findIndex(p => String(p.id) === String(post.id));
-        setStartIndex(idx !== -1 ? idx : 0);
-        setIsBookViewOpen(true);
-
-        // We still fetch details if needed, but PostBookView handles its own fetching usually?
-        // Actually PostBookView inputs `posts`. If `blocks` are missing, PostBookView's MiniPostViewer handles it?
-        // No, MiniPostViewer needs blocks.
-        // We integrated `fetchPostById` in `PostBookView` (via User Request 2 Conversation 2).
-        // Let's rely on PostBookView's internal lazy loading if it exists, OR pre-fetch here if we want.
-        // For now, simple switch.
+        // Navigate to single post read view instead of book view
+        onPostClick(post);
     };
 
 
