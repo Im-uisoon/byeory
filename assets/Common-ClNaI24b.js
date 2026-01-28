@@ -1,0 +1,1 @@
+import{Nt as e,jt as t,z as n}from"./index-CDU_QrvF.js";import{t as r}from"./Shared-1e7w4tga.js";t();var i=n();const a=({children:e,className:t=``,title:n,headerRight:a})=>(0,i.jsx)(r,{className:`items-center justify-center p-2 ${t}`,title:n,headerRight:a,children:e});export{a as t};
